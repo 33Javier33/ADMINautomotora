@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AutoGestión Pro | CarlosPN Interactive®</title>
+    <style>
+        :root { 
+            --primary: #4f46e5; --success: #10b981; --danger: #ef4444; --warning: #f59e0b; 
+            --dark: #0f172a; --light: #f8fafc; --border: #e2e8f0; --secondary: #64748b;
+        }
+        body { font-family: 'Inter', system-ui, sans-serif; background: var(--light); margin: 0; padding-bottom: 80px; }
+        #loadingBar { height: 4px; background: var(--primary); width: 0%; position: fixed; top: 0; transition: 0.3s; z-index: 5000; }
+        
+        /* PORTAL LOGIN */
+        #portalAcceso { position: fixed; inset: 0; background: var(--dark); z-index: 2000; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .login-card { background: white; padding: 2.5rem; border-radius: 24px; width: 100%; max-width: 380px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        .login-card h2 { font-weight: 900; color: var(--primary); margin: 0 0 25px 0; font-size: 1.4rem; }
+        
+        input, select, textarea { width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 12px; outline: none; font-size: 16px; box-sizing: border-box; }
+        .btn-main { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
+
+        /* NAV */
+        nav { background: white; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
+        .nav-info { display: flex; flex-direction: column; gap: 2px; }
+        #sucursalLabel { background: var(--primary); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 900; text-transform: uppercase; }
+        #rolLabel { font-size: 0.65rem; font-weight: 800; color: var(--secondary); text-transform: uppercase; margin-left: 5px; }
+        
+        #btnStaff { display: none; background: #000 !important; color: #fff !important; border: none; padding: 8px 12px; border-radius: 10px; font-size: 0.7rem; font-weight: 900; cursor: pointer; text-transform: uppercase; }
+
+        /* GRID Y TARJETAS */
+        .inventory-grid { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); padding: 1.5rem; }
+        .card-item { background: white; border-radius: 20px; border: 1px solid var(--border); overflow: hidden; position: relative; box-shadow: 0 10px 15px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
+        
+        .card-item.is-sold::after { content: "VENDIDO"; position: absolute; top: 40%; left: 50%; transform: translate(-50%,-50%) rotate(-15deg); border: 6px solid var(--danger); color: var(--danger); padding: 10px 20px; font-size: 2.5rem; font-weight: 900; background: rgba(255,255,255,0.9); z-index: 10; border-radius: 12px; pointer-events: none; }
+        .card-item.is-reserved::after { content: "RESERVADO"; position: absolute; top: 40%; left: 50%; transform: translate(-50%,-50%) rotate(-15deg); border: 6px solid var(--warning); color: var(--warning); padding: 10px 20px; font-size: 2.2rem; font-weight: 900; background: rgba(255,255,255,0.9); z-index: 10; border-radius: 12px; pointer-events: none; }
+
+        .card-header { padding: 1.25rem; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: flex-start; }
+        .badge-patente { background: var(--dark); color: white; padding: 8px 12px; border-radius: 10px; font-family: monospace; font-weight: 900; }
+        
+        .card-footer { background: #f8fafc; padding: 1rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); }
+        .actions-group { display: flex; gap: 8px; }
+        .btn-action { width: 42px; height: 42px; border-radius: 10px; border: none; color: white; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+        #btnAddVehiculo { position: fixed; bottom: 25px; right: 25px; width: 65px; height: 65px; border-radius: 50%; background: var(--primary); color: white; border: none; font-size: 35px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); cursor: pointer; z-index: 100; }
+
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 3000; display: none; justify-content: center; align-items: center; padding: 15px; }
+        .modal-content { background: white; padding: 2rem; border-radius: 24px; width: 100%; max-width: 850px; max-height: 92vh; overflow-y: auto; position: relative; }
+        .close-x { position: absolute; top: 20px; right: 20px; font-size: 2rem; cursor: pointer; font-weight: 900; color: var(--secondary); }
+    </style>
+</head>
+<body>
+
+<div id="loadingBar"></div>
+
+<div id="portalAcceso">
+    <div class="login-card">
+        <h2>CARLOSPN INTERACTIVE®</h2>
+        <div id="stepLogin">
+            <select id="selBranch"><option value="">Cargando sucursales...</option></select>
+            <input type="text" id="usrR" placeholder="RUT">
+            <input type="password" id="usrP" placeholder="Contraseña">
+            <button class="btn-main" onclick="autenticar(true)">INGRESAR</button>
+            <button class="btn-main" style="background:var(--dark); margin-top:10px; font-size: 11px;" onclick="document.getElementById('stepLogin').style.display='none'; document.getElementById('stepAdmin').style.display='block';">MODO MAESTRO</button>
+        </div>
+        <div id="stepAdmin" style="display:none;">
+            <input type="text" id="admR" placeholder="RUT Maestro">
+            <input type="password" id="admP" placeholder="Clave Maestro">
+            <button class="btn-main" onclick="autenticar(false)">ENTRAR AL PANEL</button>
+            <button class="btn-main" style="background:var(--secondary); margin-top:10px;" onclick="document.getElementById('stepLogin').style.display='block'; document.getElementById('stepAdmin').style.display='none';">VOLVER</button>
+        </div>
+    </div>
+</div>
+
+<div id="mainApp" style="display:none;">
+    <nav>
+        <div class="nav-info">
+            <div style="font-weight:900; color:var(--primary);">AutoGestión Pro</div>
+            <div>
+                <span id="sucursalLabel">SIN SUCURSAL</span>
+                <span id="rolLabel">ROL: ---</span>
+            </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+            <button id="btnStaff" onclick="document.getElementById('modalStaff').style.display='flex'">+ VENDEDOR</button>
+            <button onclick="cerrarSesion()" style="background:var(--danger); border:none; color:white; padding:8px 15px; border-radius:10px; font-weight:bold; cursor:pointer;">SALIR</button>
+        </div>
+    </nav>
+
+    <div id="viewPlanilla" style="display:none;">
+        <div style="padding:1rem 1.5rem;">
+            <div id="stockT" style="font-weight:800; color:var(--secondary); font-size:0.75rem; margin-bottom:5px;">STOCK: --</div>
+            <input type="text" id="search" placeholder="🔍 Buscar..." onkeyup="render()" style="background:white;">
+        </div>
+        <div id="cards" class="inventory-grid"></div>
+        <button id="btnAddVehiculo" onclick="abrirM()">+</button>
+    </div>
+
+    <div id="viewMaestro" style="display:none; padding:1.5rem;">
+        <div style="background:white; padding:1.5rem; border-radius:20px;">
+            <h3 style="margin-top:0">Panel Maestro</h3>
+            <div style="display:flex; gap:10px;">
+                <input type="text" id="newB" placeholder="Nombre Sucursal">
+                <button class="btn-main" onclick="crearB()" style="width:auto; padding:0 20px;">CREAR</button>
+            </div>
+            <div id="listaSuc"></div>
+        </div>
+    </div>
+</div>
+
+<div id="modalStaff" class="modal-overlay">
+    <div class="modal-content" style="max-width:400px; text-align:center;">
+        <span class="close-x" onclick="document.getElementById('modalStaff').style.display='none'">&times;</span>
+        <h2 style="font-weight:900; margin-bottom:20px;">GESTOR DE EQUIPO</h2>
+        <input type="text" id="stNombre" placeholder="Nombre Completo">
+        <input type="text" id="stR" placeholder="RUT">
+        <input type="password" id="stP" placeholder="Clave">
+        <select id="stRol">
+            <option value="Vendedor">Vendedor</option>
+            <option value="Encargado">Encargado</option>
+        </select>
+        <button class="btn-main" onclick="crearStaff()">GUARDAR EN HOJA</button>
+    </div>
+</div>
+
+<div id="modalVehiculo" class="modal-overlay">
+    <div class="modal-content">
+        <span class="close-x" onclick="cerrarM()">&times;</span>
+        <h2 style="font-weight:900; color:var(--primary); margin-top:0;">FICHA DEL VEHÍCULO</h2>
+        <form id="formV">
+            <input type="hidden" id="editId">
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:12px;">
+                <input type="text" id="idEx" placeholder="ID EXTERNO">
+                <input type="text" id="pat" placeholder="PATENTE" required style="text-transform:uppercase;">
+                <input type="text" id="mar" placeholder="MARCA" required>
+                <input type="text" id="mod" placeholder="MODELO" required>
+                <input type="text" id="ani" placeholder="AÑO">
+                <input type="text" id="km" placeholder="KM" oninput="formatN(this)">
+                <input type="text" id="col" placeholder="COLOR">
+                <select id="com"><option>Bencina</option><option>Diesel</option><option>Híbrido</option><option>Eléctrico</option></select>
+                <input type="text" id="due" placeholder="DUEÑO ORIGINAL">
+                <input type="tel" id="fon" placeholder="FONO">
+                <input type="text" id="pD" placeholder="COSTO DUEÑO" oninput="formatN(this)" style="color:var(--danger); font-weight:bold;">
+                <input type="text" id="pV" placeholder="PRECIO VENTA" oninput="formatN(this)" style="color:var(--success); font-weight:bold;">
+                <input type="url" id="ins" placeholder="URL INSTAGRAM" style="grid-column: 1 / -1;">
+                <textarea id="obs" placeholder="OBSERVACIONES" rows="3" style="grid-column: 1 / -1;"></textarea>
+            </div>
+            <button type="submit" class="btn-main" style="margin-top:20px;">GUARDAR INFORMACIÓN</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxpb_JPinHuk2Ex44UWqZHROfhPXUbmzSLmDfh34SdGzzKh9W5fPPBpVdxuPRJHbENa/exec"; 
+    const KEY = "CPN_INTERACTIVE_2026_SECURE";
+    let sucA = "", miRol = "", inventory = [];
+
+    function loader(p) { document.getElementById('loadingBar').style.width = p + "%"; }
+    function formatN(i) { let v = i.value.replace(/\D/g, ""); i.value = v ? Number(v).toLocaleString("de-DE") : ""; }
+    function cerrarM() { document.getElementById('modalVehiculo').style.display='none'; }
+    function abrirM() { document.getElementById('modalVehiculo').style.display='flex'; document.getElementById('formV').reset(); document.getElementById('editId').value=''; }
+
+    // PERSISTENCIA: Al cargar, revisa si hay sesión guardada
+    window.onload = () => {
+        const savedSession = localStorage.getItem('cpn_session');
+        if (savedSession) {
+            const data = JSON.parse(savedSession);
+            sucA = data.sucursal;
+            miRol = data.rol;
+            iniciarApp();
+        } else {
+            cargarSuc();
+        }
+    };
+
+    function cerrarSesion() {
+        localStorage.removeItem('cpn_session');
+        location.reload();
+    }
+
+    async function cargarSuc() {
+        const res = await fetch(`${SCRIPT_URL}?key=${KEY}&action=get_branches`);
+        const data = await res.json();
+        const sel = document.getElementById('selBranch');
+        sel.innerHTML = '<option value="">-- Sucursal --</option>';
+        data.forEach(s => sel.innerHTML += `<option value="${s[1]}">${s[1]}</option>`);
+        const list = document.getElementById('listaSuc');
+        if(list) {
+            list.innerHTML = '';
+            data.forEach(s => {
+                list.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee;">
+                    <b>${s[1].toUpperCase()}</b>
+                    <button onclick="entrarM('${s[1]}')" style="background:var(--success); color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Entrar</button>
+                </div>`;
+            });
+        }
+    }
+
+    async function autenticar(esSuc) {
+        const rut = esSuc ? document.getElementById('usrR').value : document.getElementById('admR').value;
+        const pass = esSuc ? document.getElementById('usrP').value : document.getElementById('admP').value;
+        const branch = esSuc ? document.getElementById('selBranch').value : null;
+        if(!rut || !pass) return alert("Ingresa RUT y Clave");
+        loader(50);
+        try {
+            const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "auth_any", rut, pass, branch, key: KEY }) });
+            const data = await res.json();
+            if(data.success) {
+                miRol = data.rol; sucA = branch;
+                // GUARDAR SESIÓN EN LOCALSTORAGE
+                localStorage.setItem('cpn_session', JSON.stringify({ rol: miRol, sucursal: sucA }));
+                iniciarApp();
+            } else alert("Acceso Incorrecto");
+        } catch(e) { alert("Error de conexión"); }
+        loader(0);
+    }
+
+    function iniciarApp() {
+        document.getElementById('portalAcceso').style.display='none';
+        document.getElementById('mainApp').style.display='block';
+        if(miRol === "MAESTRO") { 
+            document.getElementById('viewMaestro').style.display='block'; 
+            cargarSuc(); 
+        } else { 
+            document.getElementById('viewPlanilla').style.display='block'; 
+            document.getElementById('sucursalLabel').innerText = sucA.toUpperCase();
+            document.getElementById('rolLabel').innerText = "ROL: " + miRol;
+            
+            // SEGURIDAD POR ROL
+            if(miRol === "Vendedor") {
+                document.getElementById('btnStaff').style.display = 'none';
+                document.getElementById('btnAddVehiculo').style.display = 'none';
+            } else {
+                document.getElementById('btnStaff').style.display = 'block';
+                document.getElementById('btnAddVehiculo').style.display = 'block';
+            }
+            loadInv();
+            setInterval(() => loadInv(true), 30000);
+        }
+    }
+
+    function render() {
+        const container = document.getElementById('cards'), term = document.getElementById('search').value.toLowerCase();
+        const filtered = inventory.filter(c => !term || JSON.stringify(c).toLowerCase().includes(term));
+        container.innerHTML = ''; document.getElementById('stockT').innerText = `STOCK: ${filtered.length}`;
+        filtered.forEach(c => {
+            const isS = c.estado === "Vendido", isR = c.estado === "Reservado";
+            const card = document.createElement('div');
+            card.className = `card-item ${isS ? 'is-sold' : (isR ? 'is-reserved' : '')}`;
+            
+            let btns = miRol === "Vendedor" ? 
+                `<button class="btn-action" style="background:var(--warning); width:100%" onclick="upS('${c.id}', '${isR?'Disponible':'Reservado'}')">RESERVAR</button>` :
+                `<button class="btn-action" style="background:var(--warning)" onclick="upS('${c.id}', '${isR?'Disponible':'Reservado'}')">R</button>
+                 <button class="btn-action" style="background:var(--success)" onclick="upS('${c.id}', '${isS?'Disponible':'Vendido'}')">$</button>
+                 <button class="btn-action" style="background:var(--info)" onclick='editC(${JSON.stringify(c)})'>✏️</button>
+                 <button class="btn-action" style="background:var(--danger)" onclick="delC('${c.id}')">🗑️</button>`;
+            
+            card.innerHTML = `
+                <div class="card-header">
+                    <div><b style="color:var(--primary); font-size:1.1rem;">${c.marca} ${c.modelo}</b><br><small>${c.anio} | ${c.color}</small><br>
+                    <span style="background:#eef2ff; color:var(--primary); padding:2px 8px; border-radius:5px; font-size:0.7rem; font-weight:800;">🆔 ${c.idExterno || 'S/ID'}</span></div>
+                    <span class="badge-patente">${c.patente || 'S/P'}</span>
+                </div>
+                <div class="card-body" style="padding:1.25rem; font-size:0.85rem;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>KM:</span> <b>${Number(c.km || 0).toLocaleString('de-DE')}</b></div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>Combustible:</span> <b>${c.combustible || 'S/I'}</b></div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>Dueño:</span> <b>${c.dueno || '---'}</b></div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>Fono:</span> <b><a href="tel:${c.fono}">${c.fono || '---'}</a></b></div>
+                    ${c.instagram ? `<a href="${c.instagram}" target="_blank" style="color:var(--primary); font-weight:800; text-decoration:none; display:inline-block; margin-top:5px;">Ver Instagram 📸</a>` : ''}
+                    ${c.obs ? `<div style="background:#fffbeb; padding:8px; border-radius:8px; margin-top:8px; font-style:italic; font-size:0.8rem; border-left:3px solid var(--warning);">${c.obs}</div>` : ''}
+                </div>
+                <div class="card-footer">
+                    <div>
+                        <span style="color:var(--danger); font-size:0.7rem; font-weight:bold;">COSTO: $${Number(c.pDueno).toLocaleString('de-DE')}</span><br>
+                        <span style="color:var(--success); font-size:1.3rem; font-weight:900;">$${Number(c.pVenta).toLocaleString('de-DE')}</span>
+                    </div>
+                    <div class="actions-group">${btns}</div>
+                </div>`;
+            container.appendChild(card);
+        });
+    }
+
+    // (Otras funciones de apoyo se mantienen igual: upS, delC, editC, formV.onsubmit, crearB, entrarM, crearStaff)
+    async function upS(id, st) { await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "toggle_status", id, branch: sucA, newStatus: st, key: KEY }) }); loadInv(); }
+    async function delC(id) { if(!confirm("¿Borrar?")) return; await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "delete_car", id, branch: sucA, key: KEY }) }); loadInv(); }
+    async function loadInv(silent = false) { if(!silent) loader(30); const res = await fetch(`${SCRIPT_URL}?action=read&key=${KEY}&branch=${sucA}`); inventory = await res.json(); render(); loader(0); }
+    function editC(c) { abrirM(); document.getElementById('editId').value = c.id; document.getElementById('idEx').value = c.idExterno || ""; document.getElementById('pat').value = c.patente; document.getElementById('mar').value = c.marca; document.getElementById('mod').value = c.modelo; document.getElementById('ani').value = c.anio; document.getElementById('km').value = c.km; document.getElementById('col').value = c.color; document.getElementById('due').value = c.dueno; document.getElementById('fon').value = c.fono; document.getElementById('pD').value = c.pDueno; document.getElementById('pV').value = c.pVenta; document.getElementById('ins').value = c.instagram; document.getElementById('obs').value = c.obs; document.getElementById('com').value = c.combustible; formatN(document.getElementById('km')); formatN(document.getElementById('pD')); formatN(document.getElementById('pV')); }
+    document.getElementById('formV').onsubmit = async (e) => { e.preventDefault(); loader(50); const d = { action: "save", key: KEY, sucursal: sucA, editId: document.getElementById('editId').value, patente: document.getElementById('pat').value.toUpperCase(), marca: document.getElementById('mar').value, modelo: document.getElementById('mod').value, anio: document.getElementById('ani').value, km: document.getElementById('km').value.replace(/\./g,''), pDueno: document.getElementById('pD').value.replace(/\./g,''), pVenta: document.getElementById('pV').value.replace(/\./g,''), fono: document.getElementById('fon').value, color: document.getElementById('col').value, dueno: document.getElementById('due').value, obs: document.getElementById('obs').value, idExterno: document.getElementById('idEx').value, combustible: document.getElementById('com').value, instagram: document.getElementById('ins').value }; await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(d) }); cerrarM(); loadInv(); };
+    function entrarM(n) { sucA = n; miRol = "MAESTRO"; localStorage.setItem('cpn_session', JSON.stringify({ rol: miRol, sucursal: sucA })); iniciarApp(); }
+    async function crearB() { const n = document.getElementById('newB').value; if(!n) return; loader(50); await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "create_branch", nombre: n, key: KEY }) }); document.getElementById('newB').value = ''; cargarSuc(); loader(0); }
+    async function crearStaff() { const n = document.getElementById('stNombre').value, r = document.getElementById('stR').value, p = document.getElementById('stP').value, rol = document.getElementById('stRol').value; loader(50); await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "create_staff", nombre: n, newRut: r, newPass: p, branch: sucA, rol: rol, key: KEY }) }); alert("Usuario creado"); document.getElementById('modalStaff').style.display='none'; loader(0); }
+</script>
+</body>
+</html>
