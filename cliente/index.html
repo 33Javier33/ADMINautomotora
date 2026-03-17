@@ -57,7 +57,7 @@
         #mainGrid.grid-cols-mosaic .absolute.top-8 { top: 0.3rem !important; left: 0.3rem !important; padding: 1px 5px !important; font-size: 5px !important; }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .fade-in { animation: fadeIn 0.6s ease-out forwards; }
+        .fade-in { animation: fadeIn 0.8s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         
         .brand-logo-main { max-width: 200px; height: auto; margin: 0 auto; display: block; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.05)); }
@@ -78,7 +78,7 @@
                 <span class="text-xl font-bold tracking-tight text-slate-900 leading-none uppercase italic">Automotora</span>
             </div>
             <nav class="space-y-2">
-                <button onclick="showSection('catalog')" id="btn-nav-catalog" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl bg-primary text-white font-bold text-xs uppercase tracking-widest transition-all nav-btn">
+                <button onclick="showSection('catalog')" id="btn-nav-catalog" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl bg-primary text-white font-bold text-xs uppercase tracking-widest transition-all nav-btn shadow-lg shadow-primary/20">
                     <span class="material-symbols-outlined">directions_car</span> Catálogo
                 </button>
                 <button onclick="toggleDrawer()" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-slate-50 text-slate-500 font-bold text-xs uppercase tracking-widest transition-all">
@@ -125,6 +125,7 @@
             <header id="dynamicHeader" class="relative py-12 md:py-20 px-6 text-center">
                 <div id="headerDefault" class="fade-in">
                     <img src="../img/logo.png" alt="Logo" class="brand-logo-main mb-6" onerror="this.style.display='none'">
+                    
                     <h1 class="text-4xl md:text-7xl font-black tracking-tighter mb-4 leading-none uppercase italic text-slate-900">Automotora <span class="text-primary italic">Stock</span></h1>
                     <p class="text-slate-500 max-w-2xl mx-auto text-base leading-relaxed italic px-4">
                         Somos una automotora de confianza en <b>Puerto Varas</b>, donde la transparencia y la seguridad se encuentran para que compres o vendas tu vehículo con total tranquilidad.
@@ -268,7 +269,8 @@
             const session = {
                 section: currentSection,
                 filter: activeFilter,
-                scroll: window.scrollY
+                scroll: window.scrollY,
+                mosaic: isMosaic
             };
             localStorage.setItem('automotora_session', JSON.stringify(session));
             window.location.href = url;
