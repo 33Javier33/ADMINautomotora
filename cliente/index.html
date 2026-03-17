@@ -30,7 +30,6 @@
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
         #loadingBar { height: 3px; background: #137fec; width: 0%; position: fixed; top: 0; transition: 0.4s; z-index: 9999; }
         
-        /* Estilos de Sucursales */
         .chip-branch { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); flex-shrink: 0; }
         .chip-active { background-color: #137fec !important; color: #ffffff !important; transform: scale(1.05); }
         
@@ -40,7 +39,7 @@
         @media (min-width: 1024px) { .main-content { margin-left: 280px; } }
         @media (max-width: 1023px) { .section-view { padding-bottom: 100px; } }
 
-        /* MODO MOSAICO */
+        /* MODO MOSAICO MÓVIL (2 COLUMNAS) */
         #mainGrid.grid-cols-mosaic {
             grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
             gap: 0.75rem !important;
@@ -51,41 +50,35 @@
         #mainGrid.grid-cols-mosaic h3 { font-size: 0.8rem !important; line-height: 0.9rem !important; margin-bottom: 0.3rem !important; }
         #mainGrid.grid-cols-mosaic .text-4xl { font-size: 1.1rem !important; margin-bottom: 0.5rem !important; }
         #mainGrid.grid-cols-mosaic .h-64 { height: 100px !important; }
+        #mainGrid.grid-cols-mosaic .material-symbols-outlined.text-8xl { font-size: 2.2rem !important; }
+        #mainGrid.grid-cols-mosaic .text-\[9px\] { font-size: 6.5px !important; }
         #mainGrid.grid-cols-mosaic .py-6 { padding: 0.5rem 0 !important; border-radius: 0.75rem !important; font-size: 8px !important; }
-        #mainGrid.grid-cols-mosaic .w-16 { width: 2.2rem !important; height: 2.2rem !important; }
+        #mainGrid.grid-cols-mosaic .w-16 { width: 2.2rem !important; height: 2.2rem !important; border-radius: 0.6rem !important; }
+        #mainGrid.grid-cols-mosaic .absolute.top-8 { top: 0.3rem !important; left: 0.3rem !important; padding: 1px 5px !important; font-size: 5px !important; }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .fade-in { animation: fadeIn 0.6s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- EFECTO FONDO DE AGUA EN HEADER --- */
+        /* HEADER CON IMAGEN DE FONDO (LOGO.PNG COMO FONDO DE AGUA) */
         #dynamicHeader {
             position: relative;
-            /* RUTA CORREGIDA: Salir de cliente, entrar a img. Usando logo.png */
-            background-image: url('../img/logo.png'); 
+            background-color: #0f172a;
+            background-image: url('../img/logo.png');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            color: white; /* Texto blanco por defecto */
+            background-blend-mode: overlay;
         }
-
-        /* Capa oscura para legibilidad */
         #dynamicHeader::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7); /* Oscurece la foto un 70% para asegurar legibilidad */
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7); /* Oscurecer para que se lea el texto blanco */
             z-index: 1;
         }
-
-        /* Asegurar que el contenido esté sobre la capa oscura */
-        #dynamicHeader > div {
-            position: relative;
-            z-index: 2;
-        }
+        #dynamicHeader > div { position: relative; z-index: 2; }
+        .text-shadow-lg { text-shadow: 0 4px 12px rgba(0,0,0,0.5); }
     </style>
 </head>
 
@@ -98,8 +91,8 @@
 
     <aside class="hidden lg:flex fixed left-0 top-0 h-screen w-[280px] bg-white border-r border-slate-100 flex-col z-50">
         <div class="p-8">
-            <div class="flex items-center gap-3 mb-10 fade-in">
-                <img src="../img/logo.png" alt="Logo" class="w-10 h-10 object-contain" onerror="this.style.display='none'">
+            <div class="flex flex-col items-center mb-10 fade-in">
+                <img src="../img/logo.png" alt="Logo" class="w-24 h-auto mb-4 object-contain" onerror="this.src='https://cdn-icons-png.flaticon.com/512/741/741407.png'">
                 <span class="text-xl font-bold tracking-tight text-slate-900 leading-none uppercase italic">Automotora</span>
             </div>
             <nav class="space-y-2">
@@ -147,23 +140,22 @@
 
     <div class="main-content min-h-screen">
         <section id="section-catalog" class="section-view overflow-y-auto">
-            
             <header id="dynamicHeader" class="relative py-16 md:py-28 px-6 text-center">
                 <div id="headerDefault" class="fade-in">
                     <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 mb-6 text-white">
                         <span class="text-[10px] font-black uppercase tracking-widest italic">Tu socio de confianza en el sur</span>
                     </div>
-                    <h1 class="text-4xl md:text-7xl font-black tracking-tighter mb-4 leading-none uppercase italic text-white">Automotora <span class="text-primary italic">Stock</span></h1>
-                    <p class="text-white/90 max-w-2xl mx-auto text-base leading-relaxed italic px-4">
+                    <h1 class="text-4xl md:text-7xl font-black tracking-tighter mb-4 leading-none uppercase italic text-white text-shadow-lg">Automotora <span class="text-primary italic">Stock</span></h1>
+                    <p class="text-white/90 max-w-2xl mx-auto text-base leading-relaxed italic px-4 text-shadow-lg">
                         Somos una automotora de confianza en <b>Puerto Varas</b>, donde la transparencia y la seguridad se encuentran para que compres o vendas tu vehículo con total tranquilidad.
                     </p>
                 </div>
 
-                <div id="headerBranch" class="hidden fade-in relative z-10">
+                <div id="headerBranch" class="hidden fade-in">
                     <button onclick="toggleFilter(activeFilter)" class="mb-4 text-white font-bold text-[10px] uppercase tracking-widest flex items-center gap-2 mx-auto">
-                        <span class="material-symbols-outlined text-sm">arrow_back</span> Ver todas las sucursales
+                        <span class="material-symbols-outlined text-sm">arrow_back</span> Volver
                     </button>
-                    <h1 id="branchTitle" class="text-4xl md:text-7xl font-black tracking-tighter leading-tight uppercase text-white mb-8 italic">---</h1>
+                    <h1 id="branchTitle" class="text-4xl md:text-7xl font-black tracking-tighter leading-tight uppercase text-white mb-8 italic text-shadow-lg">---</h1>
                     <div id="branchBrandLogos" class="flex flex-wrap justify-center gap-6 md:gap-12 transition-all duration-700 opacity-60"></div>
                 </div>
             </header>
@@ -186,9 +178,9 @@
                 <div class="max-w-7xl mx-auto px-6 italic font-medium">
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12 border-b border-slate-800 pb-12 text-center md:text-left">
                         <div>
-                            <div class="flex items-center justify-center md:justify-start gap-3 mb-6 text-white uppercase italic font-bold">
-                                <img src="../img/logo.png" alt="Logo" class="w-8 h-8 object-contain brightness-0 invert" onerror="this.style.display='none'">
-                                <span>Automotora</span>
+                            <div class="flex flex-col items-center md:items-start gap-4 mb-6">
+                                <img src="../img/logo.png" class="h-10 w-auto brightness-0 invert" onerror="this.style.display='none'">
+                                <span class="text-xl font-bold tracking-tight text-white uppercase italic">Automotora</span>
                             </div>
                             <p class="text-sm">Confianza y garantía en Puerto Varas.</p>
                         </div>
@@ -232,7 +224,6 @@
         function loader(p) { document.getElementById('loadingBar').style.width = p + "%"; }
         function toggleDrawer() { document.getElementById('brandDrawer').classList.toggle('drawer-open'); }
 
-        // Mosaico con persistencia total
         function toggleMosaic(forceState = null) {
             isMosaic = (forceState !== null) ? forceState : !isMosaic;
             const grid = document.getElementById('mainGrid');
@@ -291,14 +282,8 @@
             loader(0);
         }
 
-        // SALIDA CON MEMORIA COMPLETA
         function openLink(url) {
-            const session = {
-                section: currentSection,
-                filter: activeFilter,
-                scroll: window.scrollY,
-                mosaic: isMosaic
-            };
+            const session = { section: currentSection, filter: activeFilter, scroll: window.scrollY, mosaic: isMosaic };
             localStorage.setItem('automotora_session', JSON.stringify(session));
             window.location.href = url;
         }
@@ -328,6 +313,7 @@
             
             document.getElementById('headerDefault').classList.toggle('hidden', !!activeFilter);
             document.getElementById('headerBranch').classList.toggle('hidden', !activeFilter);
+            document.getElementById('branchSelectorArea').classList.toggle('hidden', !!activeFilter);
             
             if(activeFilter) {
                 document.getElementById('branchTitle').innerText = activeFilter;
@@ -345,7 +331,7 @@
             container.innerHTML = '';
             marcas.forEach(m => {
                 const logo = `https://logo.clearbit.com/${m.toLowerCase().replace(/\s/g, '')}.com`;
-                container.innerHTML += `<img src="${logo}" class="h-8 md:h-12 w-auto object-contain grayscale transition-all opacity-60 hover:opacity-100 hover:grayscale-0" onerror="this.style.display='none'">`;
+                container.innerHTML += `<img src="${logo}" class="h-8 md:h-12 w-auto object-contain grayscale transition-all opacity-40 hover:grayscale-0" onerror="this.style.display='none'">`;
             });
         }
 
@@ -381,16 +367,13 @@
                         </div>
                         <div class="p-10 flex flex-col">
                             <h3 class="text-2xl font-black uppercase italic text-slate-900 mb-2 leading-none tracking-tight group-hover:text-primary transition-colors italic leading-none">${c.marca} ${c.modelo}</h3>
-                            
                             <div class="grid grid-cols-2 gap-y-2 opacity-30 mb-8 text-[9px] font-bold italic uppercase tracking-widest leading-none">
                                 <div class="flex items-center gap-2"><span class="material-symbols-outlined text-xs text-primary">calendar_today</span> ${c.anio}</div>
                                 <div class="flex items-center gap-2"><span class="material-symbols-outlined text-xs text-primary">speed</span> ${Number(c.km).toLocaleString('de-DE')} KM</div>
                                 <div class="flex items-center gap-2"><span class="material-symbols-outlined text-xs text-primary text-emerald-500 font-bold">bolt</span> ${c.combustible || 'S/I'}</div>
                                 <div class="flex items-center gap-2"><span class="material-symbols-outlined text-xs text-primary">palette</span> ${c.color || 'S/I'}</div>
                             </div>
-
                             <p class="text-4xl font-black text-primary mb-8 tracking-tighter italic leading-none">$${Number(c.pVenta).toLocaleString('de-DE')}</p>
-                            
                             <div class="flex gap-3">
                                 <button onclick="openLink('https://wa.me/${WHATSAPP_NUMBER}?text=${msg}')" class="flex-1 bg-slate-50 hover:bg-primary py-6 rounded-[2rem] font-bold text-[10px] uppercase tracking-widest transition-all text-center text-slate-400 hover:text-white shadow-sm italic leading-none">Consultar</button>
                                 ${c.instagram ? `<button onclick="openLink('${c.instagram}')" class="w-16 h-16 flex items-center justify-center bg-slate-50 border border-slate-100 rounded-[1.8rem] hover:bg-slate-100 text-slate-400 leading-none"><span class="material-symbols-outlined text-xl">photo_camera</span></button>` : ''}
