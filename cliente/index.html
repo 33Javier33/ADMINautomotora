@@ -30,24 +30,14 @@
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
         #loadingBar { height: 3px; background: #137fec; width: 0%; position: fixed; top: 0; transition: 0.4s; z-index: 9999; }
         
-        /* PANTALLA DE CARGA (SPINNER) */
         #globalLoader {
-            position: fixed;
-            inset: 0;
-            background: white;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            position: fixed; inset: 0; background: white; z-index: 9999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
             transition: opacity 0.5s ease, visibility 0.5s;
         }
         .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #137fec;
-            border-radius: 50%;
+            width: 50px; height: 50px; border: 5px solid #f3f3f3;
+            border-top: 5px solid #137fec; border-radius: 50%;
             animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -63,9 +53,7 @@
 
         #mainGrid.grid-cols-mosaic {
             grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-            gap: 0.75rem !important;
-            padding-left: 0.5rem !important;
-            padding-right: 0.5rem !important;
+            gap: 0.75rem !important; padding-left: 0.5rem !important; padding-right: 0.5rem !important;
         }
         #mainGrid.grid-cols-mosaic .p-10 { padding: 0.8rem !important; }
         #mainGrid.grid-cols-mosaic h3 { font-size: 0.8rem !important; line-height: 0.9rem !important; margin-bottom: 0.3rem !important; }
@@ -78,13 +66,11 @@
 
         #dynamicHeader { position: relative; overflow: hidden; background-color: #0f172a; }
         .watermark-bg {
-            position: absolute;
-            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             min-width: 100%; min-height: 100%; object-fit: cover; opacity: 0.4; z-index: 1;
         }
         .header-overlay {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(to bottom, rgba(15,23,42,0.75), rgba(15,23,42,0.9));
             z-index: 2;
         }
@@ -113,7 +99,7 @@
                 <span class="text-xl font-bold tracking-tight text-slate-900 leading-none uppercase italic">Automotora</span>
             </div>
             <nav class="space-y-2">
-                <button onclick="showSection('catalog')" id="btn-nav-catalog" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl bg-primary text-white font-bold text-xs uppercase tracking-widest transition-all nav-btn shadow-lg">
+                <button onclick="handleStockClick()" id="btn-nav-catalog" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl bg-primary text-white font-bold text-xs uppercase tracking-widest transition-all nav-btn shadow-lg">
                     <span class="material-symbols-outlined">directions_car</span> Catálogo
                 </button>
                 <button onclick="toggleDrawer()" id="btn-sidebar-brands" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-slate-50 text-slate-500 font-bold text-xs uppercase tracking-widest transition-all">
@@ -135,7 +121,7 @@
             <span class="material-symbols-outlined text-2xl">menu</span>
             <span class="text-[9px] font-bold uppercase">Marcas</span>
         </button>
-        <button onclick="showSection('catalog')" class="flex flex-col items-center gap-1 text-primary font-bold">
+        <button onclick="handleStockClick()" class="flex flex-col items-center gap-1 text-primary font-bold">
             <span class="material-symbols-outlined text-2xl font-bold">directions_car</span>
             <span class="text-[9px] font-bold uppercase tracking-widest">Stock</span>
         </button>
@@ -233,13 +219,8 @@
 
         function showLoader(show) {
             const loader = document.getElementById('globalLoader');
-            if(show) {
-                loader.style.visibility = 'visible';
-                loader.style.opacity = '1';
-            } else {
-                loader.style.opacity = '0';
-                setTimeout(() => { loader.style.visibility = 'hidden'; }, 500);
-            }
+            if(show) { loader.style.visibility = 'visible'; loader.style.opacity = '1'; }
+            else { loader.style.opacity = '0'; setTimeout(() => { loader.style.visibility = 'hidden'; }, 500); }
         }
 
         function toggleDrawer() { document.getElementById('brandDrawer').classList.toggle('drawer-open'); }
@@ -259,7 +240,7 @@
         }
 
         async function initApp() {
-            showLoader(true); // Mostrar loader al iniciar
+            showLoader(true);
             try {
                 const resB = await fetch(`${SCRIPT_URL}?key=${KEY}&action=get_branches`);
                 globalBranches = await resB.json();
@@ -270,8 +251,7 @@
                 
                 results.forEach((data, index) => {
                     const branchName = globalBranches[index][1];
-                    const cleanData = data.filter(c => c.estado !== "Vendido").map(c => ({...c, sucursalOrigen: branchName}));
-                    globalInventory = [...globalInventory, ...cleanData];
+                    globalInventory = [...globalInventory, ...data.filter(c => c.estado !== "Vendido").map(c => ({...c, sucursalOrigen: branchName}))];
                 });
 
                 globalInventory.sort(() => Math.random() - 0.5);
@@ -295,7 +275,18 @@
                     renderAll();
                 }
             } catch(e) { console.error(e); }
-            showLoader(false); // Ocultar loader al terminar
+            showLoader(false);
+        }
+
+        // LÓGICA DE CLIC EN STOCK (BOTÓN HOME)
+        function handleStockClick() {
+            if (currentSection !== 'catalog') {
+                showSection('catalog');
+            } else if (activeFilter !== null) {
+                resetBranchFilter(); // Si ya está en catálogo pero en sucursal, resetea
+            } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' }); // Si ya está arriba y sin filtros, solo sube
+            }
         }
 
         function renderChips(branches) {
@@ -332,6 +323,7 @@
             renderChips(globalBranches);
             updateNavUI();
             renderAll();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function renderFooterBranches(branches) {
@@ -346,7 +338,6 @@
             document.getElementById('headerDefault').classList.add('hidden');
             document.getElementById('headerBranch').classList.remove('hidden');
             document.getElementById('branchTitle').innerText = activeFilter;
-            
             renderBranchLogos(activeFilter);
             renderBrandChips(activeFilter);
             updateNavUI();
@@ -358,14 +349,11 @@
             const btnBrands = document.getElementById('btn-bottom-brands');
             const btnAdmin = document.getElementById('btn-bottom-admin');
             if (currentSection === 'admin') {
-                btnBrands.style.display = 'none';
-                btnAdmin.style.display = 'none';
+                btnBrands.style.display = 'none'; btnAdmin.style.display = 'none';
             } else if (activeFilter !== null) {
-                btnBrands.style.display = 'none';
-                btnAdmin.style.display = 'flex';
+                btnBrands.style.display = 'none'; btnAdmin.style.display = 'flex';
             } else {
-                btnBrands.style.display = 'flex';
-                btnAdmin.style.display = 'flex';
+                btnBrands.style.display = 'flex'; btnAdmin.style.display = 'flex';
             }
         }
 
@@ -375,7 +363,7 @@
             container.innerHTML = '';
             marcas.forEach(m => {
                 const logo = `https://logo.clearbit.com/${m.toLowerCase().replace(/\s/g, '')}.com`;
-                container.innerHTML += `<img src="${logo}" onclick="setBrandFilter('${m}')" class="h-8 md:h-12 w-auto object-contain grayscale cursor-pointer transition-all hover:opacity-100 hover:grayscale-0" onerror="this.style.display='none'">`;
+                container.innerHTML += `<img src="${logo}" onclick="setBrandFilter('${m}')" class="h-8 md:h-12 w-auto object-contain grayscale cursor-pointer opacity-40 hover:opacity-100 hover:grayscale-0" onerror="this.style.display='none'">`;
             });
         }
 
@@ -409,27 +397,26 @@
                 const isRes = c.estado === "Reservado";
                 const msg = encodeURIComponent(`Consulta: ${c.marca} ${c.modelo} - ${c.sucursalOrigen}`);
                 const logo = `https://logo.clearbit.com/${c.marca.toLowerCase().replace(/\s/g, '')}.com`;
-                
                 container.innerHTML += `
                     <div class="group bg-white rounded-[2rem] overflow-hidden border border-slate-100 flex flex-col relative transition-all duration-500 shadow-xl">
                         <div class="absolute top-8 left-8 z-10 bg-white/60 backdrop-blur-md px-4 py-1.5 rounded-full text-[8px] font-black uppercase text-slate-500 italic border border-white/20">${c.sucursalOrigen}</div>
                         <div class="h-64 bg-slate-50 flex items-center justify-center relative">
                             <img src="${logo}" class="h-8 absolute top-8 right-8 opacity-20 grayscale transition-all duration-700 group-hover:opacity-100 group-hover:grayscale-0" onerror="this.style.display='none'">
-                            <span class="material-symbols-outlined text-8xl text-slate-200 transition-transform duration-1000 group-hover:scale-110">directions_car</span>
+                            <span class="material-symbols-outlined text-8xl text-slate-200">directions_car</span>
                             ${isRes ? '<div class="absolute inset-0 bg-primary/10 flex items-center justify-center backdrop-blur-sm z-20 font-black"><span class="bg-primary text-white px-8 py-2 rounded-full text-[10px] uppercase tracking-widest leading-none">Reservado</span></div>' : ''}
                         </div>
                         <div class="p-10 flex flex-col">
-                            <h3 class="text-2xl font-black uppercase italic text-slate-900 mb-2 leading-none tracking-tight group-hover:text-primary transition-colors italic leading-none">${c.marca} ${c.modelo}</h3>
+                            <h3 class="text-2xl font-black uppercase italic text-slate-900 mb-2 leading-none tracking-tight group-hover:text-primary transition-colors italic">${c.marca} ${c.modelo}</h3>
                             <div class="grid grid-cols-2 gap-y-2 opacity-30 mb-8 text-[9px] font-bold italic uppercase tracking-widest leading-none">
-                                <div class="flex items-center gap-2"><span class="material-symbols-outlined text-xs text-primary">calendar_today</span> ${c.anio}</div>
-                                <div class="flex items-center gap-2"><span class="material-symbols-outlined text-xs text-primary">speed</span> ${Number(c.km).toLocaleString('de-DE')} KM</div>
-                                <div class="flex items-center gap-2"><span class="material-symbols-outlined text-xs text-primary text-emerald-500 font-bold">bolt</span> ${c.combustible || 'S/I'}</div>
-                                <div class="flex items-center gap-2"><span class="material-symbols-outlined text-xs text-primary">palette</span> ${c.color || 'S/I'}</div>
+                                <div class="flex items-center gap-2"><span class="material-symbols-outlined text-xs">calendar_today</span> ${c.anio}</div>
+                                <div class="flex items-center gap-2"><span class="material-symbols-outlined text-xs">speed</span> ${Number(c.km).toLocaleString('de-DE')} KM</div>
+                                <div class="flex items-center gap-2"><span class="material-symbols-outlined text-xs font-bold">bolt</span> ${c.combustible || 'S/I'}</div>
+                                <div class="flex items-center gap-2"><span class="material-symbols-outlined text-xs">palette</span> ${c.color || 'S/I'}</div>
                             </div>
-                            <p class="text-4xl font-black text-primary mb-8 tracking-tighter italic leading-none">$${Number(c.pVenta).toLocaleString('de-DE')}</p>
+                            <p class="text-4xl font-black text-primary mb-8 italic leading-none">$${Number(c.pVenta).toLocaleString('de-DE')}</p>
                             <div class="flex gap-3">
-                                <button onclick="openLink('https://wa.me/${WHATSAPP_NUMBER}?text=${msg}')" class="flex-1 bg-slate-50 hover:bg-primary py-6 rounded-[2rem] font-bold text-[10px] uppercase tracking-widest transition-all text-center text-slate-400 hover:text-white shadow-sm italic leading-none">Consultar</button>
-                                ${c.instagram ? `<button onclick="openLink('${c.instagram}')" class="w-16 h-16 flex items-center justify-center bg-slate-50 rounded-[1.8rem] text-slate-400 hover:bg-slate-100 transition-all"><span class="material-symbols-outlined">photo_camera</span></button>` : ''}
+                                <button onclick="openLink('https://wa.me/${WHATSAPP_NUMBER}?text=${msg}')" class="flex-1 bg-slate-50 hover:bg-primary py-6 rounded-[2rem] font-bold text-[10px] uppercase text-slate-400 hover:text-white transition-all italic shadow-sm">Consultar</button>
+                                ${c.instagram ? `<button onclick="openLink('${c.instagram}')" class="w-16 h-16 flex items-center justify-center bg-slate-50 rounded-[1.8rem] text-slate-400 hover:bg-slate-100 transition-all"><span class="material-symbols-outlined text-xl">photo_camera</span></button>` : ''}
                             </div>
                         </div>
                     </div>`;
