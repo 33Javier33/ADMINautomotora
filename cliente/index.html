@@ -30,6 +30,7 @@
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
         #loadingBar { height: 3px; background: #137fec; width: 0%; position: fixed; top: 0; transition: 0.4s; z-index: 9999; }
         
+        /* Estilos de Sucursales */
         .chip-branch { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); flex-shrink: 0; }
         .chip-active { background-color: #137fec !important; color: #ffffff !important; transform: scale(1.05); }
         
@@ -39,7 +40,7 @@
         @media (min-width: 1024px) { .main-content { margin-left: 280px; } }
         @media (max-width: 1023px) { .section-view { padding-bottom: 100px; } }
 
-        /* MODO MOSAICO MÓVIL (2 COLUMNAS) */
+        /* MODO MOSAICO */
         #mainGrid.grid-cols-mosaic {
             grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
             gap: 0.75rem !important;
@@ -50,35 +51,59 @@
         #mainGrid.grid-cols-mosaic h3 { font-size: 0.8rem !important; line-height: 0.9rem !important; margin-bottom: 0.3rem !important; }
         #mainGrid.grid-cols-mosaic .text-4xl { font-size: 1.1rem !important; margin-bottom: 0.5rem !important; }
         #mainGrid.grid-cols-mosaic .h-64 { height: 100px !important; }
-        #mainGrid.grid-cols-mosaic .material-symbols-outlined.text-8xl { font-size: 2.2rem !important; }
-        #mainGrid.grid-cols-mosaic .text-\[9px\] { font-size: 6.5px !important; }
         #mainGrid.grid-cols-mosaic .py-6 { padding: 0.5rem 0 !important; border-radius: 0.75rem !important; font-size: 8px !important; }
-        #mainGrid.grid-cols-mosaic .w-16 { width: 2.2rem !important; height: 2.2rem !important; border-radius: 0.6rem !important; }
-        #mainGrid.grid-cols-mosaic .absolute.top-8 { top: 0.3rem !important; left: 0.3rem !important; padding: 1px 5px !important; font-size: 5px !important; }
+        #mainGrid.grid-cols-mosaic .w-16 { width: 2.2rem !important; height: 2.2rem !important; }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .fade-in { animation: fadeIn 0.8s ease-out forwards; }
+        .fade-in { animation: fadeIn 0.6s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .brand-logo-main { max-width: 200px; height: auto; margin: 0 auto; display: block; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.05)); }
+
+        /* --- EFECTO FONDO DE AGUA EN HEADER --- */
+        #dynamicHeader {
+            position: relative;
+            /* RUTA CORREGIDA: Salir de cliente, entrar a img. Usando logo.png */
+            background-image: url('../img/logo.png'); 
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: white; /* Texto blanco por defecto */
+        }
+
+        /* Capa oscura para legibilidad */
+        #dynamicHeader::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); /* Oscurece la foto un 70% para asegurar legibilidad */
+            z-index: 1;
+        }
+
+        /* Asegurar que el contenido esté sobre la capa oscura */
+        #dynamicHeader > div {
+            position: relative;
+            z-index: 2;
+        }
     </style>
 </head>
 
 <body class="font-display antialiased">
     <div id="loadingBar"></div>
 
-    <button id="mosaicFloatingBtn" onclick="toggleMosaic()" class="lg:hidden fixed bottom-24 left-6 z-[110] bg-slate-900 text-white w-14 h-14 rounded-full shadow-2xl flex items-center justify-center border border-white/10 active:scale-95 transition-all">
+    <button id="mosaicFloatingBtn" onclick="toggleMosaic()" class="lg:hidden fixed bottom-24 left-6 z-[110] bg-white text-slate-900 w-14 h-14 rounded-full shadow-2xl flex items-center justify-center border border-slate-200 active:scale-95 transition-all">
         <span id="mosaicIcon" class="material-symbols-outlined">grid_view</span>
     </button>
 
     <aside class="hidden lg:flex fixed left-0 top-0 h-screen w-[280px] bg-white border-r border-slate-100 flex-col z-50">
         <div class="p-8">
-            <div class="flex flex-col items-center mb-10 fade-in">
-                <img src="../img/logo.png" alt="Logo" class="w-32 h-auto mb-4 object-contain" onerror="this.src='https://cdn-icons-png.flaticon.com/512/741/741407.png'">
+            <div class="flex items-center gap-3 mb-10 fade-in">
+                <img src="../img/logo.png" alt="Logo" class="w-10 h-10 object-contain" onerror="this.style.display='none'">
                 <span class="text-xl font-bold tracking-tight text-slate-900 leading-none uppercase italic">Automotora</span>
             </div>
             <nav class="space-y-2">
-                <button onclick="showSection('catalog')" id="btn-nav-catalog" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl bg-primary text-white font-bold text-xs uppercase tracking-widest transition-all nav-btn shadow-lg shadow-primary/20">
+                <button onclick="showSection('catalog')" id="btn-nav-catalog" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl bg-primary text-white font-bold text-xs uppercase tracking-widest transition-all nav-btn">
                     <span class="material-symbols-outlined">directions_car</span> Catálogo
                 </button>
                 <button onclick="toggleDrawer()" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-slate-50 text-slate-500 font-bold text-xs uppercase tracking-widest transition-all">
@@ -122,26 +147,28 @@
 
     <div class="main-content min-h-screen">
         <section id="section-catalog" class="section-view overflow-y-auto">
-            <header id="dynamicHeader" class="relative py-12 md:py-20 px-6 text-center">
+            
+            <header id="dynamicHeader" class="relative py-16 md:py-28 px-6 text-center">
                 <div id="headerDefault" class="fade-in">
-                    <img src="../img/logo.png" alt="Logo" class="brand-logo-main mb-6" onerror="this.style.display='none'">
-                    
-                    <h1 class="text-4xl md:text-7xl font-black tracking-tighter mb-4 leading-none uppercase italic text-slate-900">Automotora <span class="text-primary italic">Stock</span></h1>
-                    <p class="text-slate-500 max-w-2xl mx-auto text-base leading-relaxed italic px-4">
+                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 mb-6 text-white">
+                        <span class="text-[10px] font-black uppercase tracking-widest italic">Tu socio de confianza en el sur</span>
+                    </div>
+                    <h1 class="text-4xl md:text-7xl font-black tracking-tighter mb-4 leading-none uppercase italic text-white">Automotora <span class="text-primary italic">Stock</span></h1>
+                    <p class="text-white/90 max-w-2xl mx-auto text-base leading-relaxed italic px-4">
                         Somos una automotora de confianza en <b>Puerto Varas</b>, donde la transparencia y la seguridad se encuentran para que compres o vendas tu vehículo con total tranquilidad.
                     </p>
                 </div>
 
-                <div id="headerBranch" class="hidden fade-in">
-                    <button onclick="toggleFilter(activeFilter)" class="mb-4 text-primary font-bold text-[10px] uppercase tracking-widest flex items-center gap-2 mx-auto">
+                <div id="headerBranch" class="hidden fade-in relative z-10">
+                    <button onclick="toggleFilter(activeFilter)" class="mb-4 text-white font-bold text-[10px] uppercase tracking-widest flex items-center gap-2 mx-auto">
                         <span class="material-symbols-outlined text-sm">arrow_back</span> Ver todas las sucursales
                     </button>
-                    <h1 id="branchTitle" class="text-4xl md:text-7xl font-black tracking-tighter leading-tight uppercase text-slate-900 mb-8 italic">---</h1>
-                    <div id="branchBrandLogos" class="flex flex-wrap justify-center gap-6 md:gap-12 transition-all duration-700 opacity-40"></div>
+                    <h1 id="branchTitle" class="text-4xl md:text-7xl font-black tracking-tighter leading-tight uppercase text-white mb-8 italic">---</h1>
+                    <div id="branchBrandLogos" class="flex flex-wrap justify-center gap-6 md:gap-12 transition-all duration-700 opacity-60"></div>
                 </div>
             </header>
 
-            <div id="branchSelectorArea" class="max-w-7xl mx-auto px-6 mb-12 overflow-x-auto no-scrollbar">
+            <div id="branchSelectorArea" class="max-w-7xl mx-auto px-6 mb-12 overflow-x-auto no-scrollbar pt-8">
                 <div id="branchChips" class="flex flex-nowrap md:flex-wrap justify-start md:justify-center gap-3"></div>
             </div>
 
@@ -159,8 +186,8 @@
                 <div class="max-w-7xl mx-auto px-6 italic font-medium">
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12 border-b border-slate-800 pb-12 text-center md:text-left">
                         <div>
-                            <div class="flex flex-col items-center md:items-start gap-4 mb-6 text-white uppercase italic font-bold">
-                                <img src="../img/logo.png" class="h-10 w-auto brightness-0 invert" onerror="this.style.display='none'">
+                            <div class="flex items-center justify-center md:justify-start gap-3 mb-6 text-white uppercase italic font-bold">
+                                <img src="../img/logo.png" alt="Logo" class="w-8 h-8 object-contain brightness-0 invert" onerror="this.style.display='none'">
                                 <span>Automotora</span>
                             </div>
                             <p class="text-sm">Confianza y garantía en Puerto Varas.</p>
@@ -301,7 +328,6 @@
             
             document.getElementById('headerDefault').classList.toggle('hidden', !!activeFilter);
             document.getElementById('headerBranch').classList.toggle('hidden', !activeFilter);
-            document.getElementById('branchSelectorArea').classList.toggle('hidden', !!activeFilter);
             
             if(activeFilter) {
                 document.getElementById('branchTitle').innerText = activeFilter;
@@ -319,7 +345,7 @@
             container.innerHTML = '';
             marcas.forEach(m => {
                 const logo = `https://logo.clearbit.com/${m.toLowerCase().replace(/\s/g, '')}.com`;
-                container.innerHTML += `<img src="${logo}" class="h-8 md:h-12 w-auto object-contain grayscale transition-all opacity-40 hover:grayscale-0" onerror="this.style.display='none'">`;
+                container.innerHTML += `<img src="${logo}" class="h-8 md:h-12 w-auto object-contain grayscale transition-all opacity-60 hover:opacity-100 hover:grayscale-0" onerror="this.style.display='none'">`;
             });
         }
 
@@ -347,7 +373,7 @@
                 
                 container.innerHTML += `
                     <div class="group bg-white rounded-[2rem] overflow-hidden border border-slate-100 flex flex-col relative transition-all duration-500 shadow-xl">
-                        <div class="absolute top-8 left-8 z-10 bg-white/60 backdrop-blur-md px-4 py-1.5 rounded-full text-[8px] font-black uppercase text-slate-500 italic border border-slate-200">${c.sucursalOrigen}</div>
+                        <div class="absolute top-8 left-8 z-10 bg-white/60 backdrop-blur-md px-4 py-1.5 rounded-full text-[8px] font-black uppercase text-slate-500 italic border border-white/20">${c.sucursalOrigen}</div>
                         <div class="h-64 bg-slate-50 flex items-center justify-center relative">
                             <img src="${logo}" class="h-8 absolute top-8 right-8 opacity-20 grayscale transition-all duration-700 group-hover:opacity-100 group-hover:grayscale-0" onerror="this.style.display='none'">
                             <span class="material-symbols-outlined text-8xl text-slate-200 transition-transform duration-1000 group-hover:scale-110">directions_car</span>
