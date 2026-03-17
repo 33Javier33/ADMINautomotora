@@ -30,7 +30,29 @@
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
         #loadingBar { height: 3px; background: #137fec; width: 0%; position: fixed; top: 0; transition: 0.4s; z-index: 9999; }
         
-        .chip-branch { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); flex-shrink: 0; }
+        /* PANTALLA DE CARGA (SPINNER) */
+        #globalLoader {
+            position: fixed;
+            inset: 0;
+            background: white;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease, visibility 0.5s;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #137fec;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .chip-branch, .chip-brand { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); flex-shrink: 0; cursor: pointer; }
         .chip-active { background-color: #137fec !important; color: #ffffff !important; transform: scale(1.05); }
         
         #brandDrawer { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -39,7 +61,6 @@
         @media (min-width: 1024px) { .main-content { margin-left: 280px; } }
         @media (max-width: 1023px) { .section-view { padding-bottom: 100px; } }
 
-        /* MODO MOSAICO */
         #mainGrid.grid-cols-mosaic {
             grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
             gap: 0.75rem !important;
@@ -50,37 +71,35 @@
         #mainGrid.grid-cols-mosaic h3 { font-size: 0.8rem !important; line-height: 0.9rem !important; margin-bottom: 0.3rem !important; }
         #mainGrid.grid-cols-mosaic .text-4xl { font-size: 1.1rem !important; margin-bottom: 0.5rem !important; }
         #mainGrid.grid-cols-mosaic .h-64 { height: 100px !important; }
-        #mainGrid.grid-cols-mosaic .py-6 { padding: 0.5rem 0 !important; border-radius: 0.75rem !important; font-size: 8px !important; }
-        #mainGrid.grid-cols-mosaic .w-16 { width: 2.2rem !important; height: 2.2rem !important; border-radius: 0.6rem !important; }
-        #mainGrid.grid-cols-mosaic .absolute.top-8 { top: 0.3rem !important; left: 0.3rem !important; padding: 1px 5px !important; font-size: 5px !important; }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .fade-in { animation: fadeIn 0.6s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* HEADER CON FONDO DE AGUA */
-        #dynamicHeader {
-            position: relative;
-            background-color: #0f172a;
-            background-image: url('../img/logo.png');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-blend-mode: overlay;
+        #dynamicHeader { position: relative; overflow: hidden; background-color: #0f172a; }
+        .watermark-bg {
+            position: absolute;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            min-width: 100%; min-height: 100%; object-fit: cover; opacity: 0.4; z-index: 1;
         }
-        #dynamicHeader::before {
-            content: '';
+        .header-overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.75);
-            z-index: 1;
+            background: linear-gradient(to bottom, rgba(15,23,42,0.75), rgba(15,23,42,0.9));
+            z-index: 2;
         }
-        #dynamicHeader > div { position: relative; z-index: 2; }
+        .header-content { position: relative; z-index: 3; }
         .text-shadow-lg { text-shadow: 0 4px 12px rgba(0,0,0,0.8); }
     </style>
 </head>
 
 <body class="font-display antialiased">
+    <div id="globalLoader">
+        <img src="../img/logo.png" class="w-32 h-auto mb-8 animate-pulse" alt="Cargando...">
+        <div class="spinner"></div>
+        <p class="mt-4 text-xs font-black uppercase tracking-widest text-slate-400 italic">Cargando Stock...</p>
+    </div>
+
     <div id="loadingBar"></div>
 
     <button id="mosaicFloatingBtn" onclick="toggleMosaic()" class="lg:hidden fixed bottom-24 left-6 z-[110] bg-white text-slate-900 w-14 h-14 rounded-full shadow-2xl flex items-center justify-center border border-slate-200 active:scale-95 transition-all">
@@ -90,14 +109,14 @@
     <aside class="hidden lg:flex fixed left-0 top-0 h-screen w-[280px] bg-white border-r border-slate-100 flex-col z-50">
         <div class="p-8">
             <div class="flex flex-col items-center mb-10 fade-in">
-                <img src="../img/logo.png" alt="Logo" class="w-24 h-auto mb-4 object-contain" onerror="this.src='https://cdn-icons-png.flaticon.com/512/741/741407.png'">
+                <img src="../img/logo.png" alt="Logo" class="w-24 h-auto mb-4 object-contain" onerror="this.style.display='none'">
                 <span class="text-xl font-bold tracking-tight text-slate-900 leading-none uppercase italic">Automotora</span>
             </div>
             <nav class="space-y-2">
-                <button onclick="showSection('catalog')" id="btn-nav-catalog" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl bg-primary text-white font-bold text-xs uppercase tracking-widest transition-all nav-btn">
+                <button onclick="showSection('catalog')" id="btn-nav-catalog" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl bg-primary text-white font-bold text-xs uppercase tracking-widest transition-all nav-btn shadow-lg">
                     <span class="material-symbols-outlined">directions_car</span> Catálogo
                 </button>
-                <button onclick="toggleDrawer()" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-slate-50 text-slate-500 font-bold text-xs uppercase tracking-widest transition-all">
+                <button onclick="toggleDrawer()" id="btn-sidebar-brands" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-slate-50 text-slate-500 font-bold text-xs uppercase tracking-widest transition-all">
                     <span class="material-symbols-outlined">branding_watermark</span> Marcas
                 </button>
                 <button onclick="showSection('admin')" id="btn-nav-admin" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-slate-50 text-slate-500 font-bold text-xs uppercase tracking-widest transition-all nav-btn">
@@ -107,22 +126,12 @@
         </div>
         <div class="mt-auto p-8 border-t border-slate-50 text-center text-slate-400 italic font-bold">
             <p class="text-[10px] uppercase mb-2 tracking-widest">Puerto Varas</p>
-            <a href="tel:+56920078076" class="text-sm text-primary italic">+56 9 2007 8076</a>
+            <p class="text-sm text-primary italic font-bold">+56 9 2007 8076</p>
         </div>
     </aside>
 
-    <aside id="brandDrawer" class="fixed top-0 left-0 h-full w-[280px] bg-white z-[200] border-r border-slate-100 -translate-x-full shadow-2xl overflow-y-auto">
-        <div class="p-8">
-            <div class="flex items-center justify-between mb-8">
-                <span class="text-xs font-black uppercase tracking-widest text-primary">Filtrar por Marca</span>
-                <button onclick="toggleDrawer()" class="material-symbols-outlined text-slate-400">close</button>
-            </div>
-            <div id="drawerBrandList" class="grid grid-cols-2 gap-4"></div>
-        </div>
-    </aside>
-
-    <nav class="lg:hidden fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-xl border-t border-slate-100 z-[100] h-20 flex items-center justify-around px-6">
-        <button onclick="toggleDrawer()" class="flex flex-col items-center gap-1 text-slate-400">
+    <nav id="bottomNav" class="lg:hidden fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-xl border-t border-slate-100 z-[100] h-20 flex items-center justify-around px-6">
+        <button id="btn-bottom-brands" onclick="toggleDrawer()" class="flex flex-col items-center gap-1 text-slate-400">
             <span class="material-symbols-outlined text-2xl">menu</span>
             <span class="text-[9px] font-bold uppercase">Marcas</span>
         </button>
@@ -130,7 +139,7 @@
             <span class="material-symbols-outlined text-2xl font-bold">directions_car</span>
             <span class="text-[9px] font-bold uppercase tracking-widest">Stock</span>
         </button>
-        <button onclick="showSection('admin')" class="flex flex-col items-center gap-1 text-slate-400">
+        <button id="btn-bottom-admin" onclick="showSection('admin')" class="flex flex-col items-center gap-1 text-slate-400">
             <span class="material-symbols-outlined text-2xl">lock</span>
             <span class="text-[9px] font-bold uppercase tracking-widest">Admin</span>
         </button>
@@ -138,9 +147,10 @@
 
     <div class="main-content min-h-screen">
         <section id="section-catalog" class="section-view overflow-y-auto">
-            
-            <header id="dynamicHeader" class="relative py-16 md:py-28 px-6 text-center">
-                <div id="headerDefault" class="fade-in">
+            <header id="dynamicHeader" class="relative py-16 md:py-32 px-6 text-center">
+                <img src="../img/logo.png" class="watermark-bg" alt="">
+                <div class="header-overlay"></div>
+                <div id="headerDefault" class="header-content fade-in">
                     <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 mb-6 text-white">
                         <span class="text-[10px] font-black uppercase tracking-widest italic">Tu socio de confianza en el sur</span>
                     </div>
@@ -149,9 +159,8 @@
                         Somos una automotora de confianza en <b>Puerto Varas</b>, donde la transparencia y la seguridad se encuentran para que compres o vendas tu vehículo con total tranquilidad.
                     </p>
                 </div>
-
-                <div id="headerBranch" class="hidden fade-in">
-                    <button onclick="toggleFilter(activeFilter)" class="mb-4 text-white font-bold text-[10px] uppercase tracking-widest flex items-center gap-2 mx-auto">
+                <div id="headerBranch" class="header-content hidden fade-in">
+                    <button onclick="resetBranchFilter()" class="mb-4 text-white font-bold text-[10px] uppercase tracking-widest flex items-center gap-2 mx-auto">
                         <span class="material-symbols-outlined text-sm">arrow_back</span> Ver todas las sucursales
                     </button>
                     <h1 id="branchTitle" class="text-4xl md:text-7xl font-black tracking-tighter leading-tight uppercase text-white mb-8 italic text-shadow-lg">---</h1>
@@ -159,44 +168,35 @@
                 </div>
             </header>
 
-            <div id="branchSelectorArea" class="max-w-7xl mx-auto px-6 mb-12 overflow-x-auto no-scrollbar pt-8">
-                <div id="branchChips" class="flex flex-nowrap md:flex-wrap justify-start md:justify-center gap-3"></div>
+            <div id="filterContainerArea" class="max-w-7xl mx-auto px-6 mb-12 overflow-x-auto no-scrollbar pt-8">
+                <div id="dynamicChips" class="flex flex-nowrap md:flex-wrap justify-start md:justify-center gap-3"></div>
             </div>
 
             <main class="max-w-7xl mx-auto px-4 md:px-10 pb-20">
-                <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
-                    <div class="relative w-full md:w-96">
-                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 text-xl">search</span>
-                        <input id="searchInput" onkeyup="renderAll()" type="text" class="w-full pl-12 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 text-sm" placeholder="Buscar vehículo..."/>
-                    </div>
+                <div class="mb-10">
+                    <input id="searchInput" onkeyup="renderAll()" type="text" class="w-full md:w-96 px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 text-sm" placeholder="Buscar vehículo..."/>
                 </div>
                 <div id="mainGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8 transition-all duration-500"></div>
             </main>
 
-            <footer class="bg-slate-900 text-slate-400 py-16">
+            <footer class="bg-slate-900 text-slate-400 py-16 pb-32 lg:pb-16">
                 <div class="max-w-7xl mx-auto px-6 italic font-medium">
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12 border-b border-slate-800 pb-12 text-center md:text-left">
                         <div>
-                            <div class="flex flex-col items-center md:items-start gap-4 mb-6">
+                            <div class="flex items-center justify-center md:justify-start gap-3 mb-6">
                                 <img src="../img/logo.png" class="h-10 w-auto brightness-0 invert" onerror="this.style.display='none'">
                                 <span class="text-xl font-bold tracking-tight text-white uppercase italic">Automotora</span>
                             </div>
                             <p class="text-sm">Confianza y garantía en Puerto Varas.</p>
                         </div>
                         <div>
-                            <h4 class="text-white font-bold mb-6 uppercase text-xs tracking-widest italic">Sedes</h4>
+                            <h4 class="text-white font-bold mb-6 uppercase text-xs tracking-widest italic text-primary">Sedes</h4>
                             <ul class="space-y-4 text-sm italic" id="footerBranches"></ul>
                         </div>
                         <div>
-                            <h4 class="text-white font-bold mb-6 uppercase text-xs tracking-widest text-primary italic">Menú</h4>
-                            <ul class="space-y-4 text-sm italic">
-                                <li><a class="hover:text-primary transition-colors" href="#">Stock</a></li>
-                                <li><a class="hover:text-primary transition-colors" href="#">Contacto</a></li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h4 class="text-white font-bold mb-6 uppercase text-xs tracking-widest text-primary italic">Contacto</h4>
-                            <p class="text-sm font-bold text-primary italic">+56 9 2007 8076</p>
+                            <h4 class="text-white font-bold mb-6 uppercase text-xs tracking-widest italic text-primary">Contacto</h4>
+                            <p class="text-sm font-bold text-white italic">+56 9 2007 8076</p>
+                            <p class="text-sm text-slate-500 break-all mt-2 italic">contacto@carlospninteractive.cl</p>
                         </div>
                     </div>
                     <p class="text-[10px] font-bold uppercase tracking-widest text-center italic opacity-30">© 2026 CarlosPN Interactive®</p>
@@ -209,18 +209,39 @@
         </section>
     </div>
 
+    <aside id="brandDrawer" class="fixed top-0 left-0 h-full w-[280px] bg-white z-[200] border-r border-slate-100 -translate-x-full shadow-2xl overflow-y-auto">
+        <div class="p-8">
+            <div class="flex items-center justify-between mb-8">
+                <span class="text-xs font-black uppercase tracking-widest text-primary">Filtrar por Marca</span>
+                <button onclick="toggleDrawer()" class="material-symbols-outlined text-slate-400">close</button>
+            </div>
+            <div id="drawerBrandList" class="grid grid-cols-2 gap-4"></div>
+        </div>
+    </aside>
+
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxpb_JPinHuk2Ex44UWqZHROfhPXUbmzSLmDfh34SdGzzKh9W5fPPBpVdxuPRJHbENa/exec"; 
         const KEY = "CPN_INTERACTIVE_2026_SECURE";
         const WHATSAPP_NUMBER = "56920078076";
         
         let globalInventory = []; 
+        let globalBranches = [];
         let activeFilter = null; 
         let brandFilter = null;
         let currentSection = 'catalog';
         let isMosaic = false;
 
-        function loader(p) { document.getElementById('loadingBar').style.width = p + "%"; }
+        function showLoader(show) {
+            const loader = document.getElementById('globalLoader');
+            if(show) {
+                loader.style.visibility = 'visible';
+                loader.style.opacity = '1';
+            } else {
+                loader.style.opacity = '0';
+                setTimeout(() => { loader.style.visibility = 'hidden'; }, 500);
+            }
+        }
+
         function toggleDrawer() { document.getElementById('brandDrawer').classList.toggle('drawer-open'); }
 
         function toggleMosaic(forceState = null) {
@@ -238,18 +259,17 @@
         }
 
         async function initApp() {
-            loader(30);
+            showLoader(true); // Mostrar loader al iniciar
             try {
                 const resB = await fetch(`${SCRIPT_URL}?key=${KEY}&action=get_branches`);
-                const branches = await resB.json();
-                renderChips(branches);
-                renderFooterBranches(branches);
+                globalBranches = await resB.json();
+                renderFooterBranches(globalBranches);
 
-                const promises = branches.map(b => fetch(`${SCRIPT_URL}?action=read&key=${KEY}&branch=${b[1]}`).then(r => r.json()));
+                const promises = globalBranches.map(b => fetch(`${SCRIPT_URL}?action=read&key=${KEY}&branch=${b[1]}`).then(r => r.json()));
                 const results = await Promise.all(promises);
                 
                 results.forEach((data, index) => {
-                    const branchName = branches[index][1];
+                    const branchName = globalBranches[index][1];
                     const cleanData = data.filter(c => c.estado !== "Vendido").map(c => ({...c, sucursalOrigen: branchName}));
                     globalInventory = [...globalInventory, ...cleanData];
                 });
@@ -268,35 +288,50 @@
                     if (activeFilter) toggleFilter(activeFilter, true);
                     toggleMosaic(isMosaic);
                     renderAll(); 
-                    setTimeout(() => {
-                        window.scrollTo({ top: memory.scroll, behavior: 'instant' });
-                        localStorage.removeItem('automotora_session'); 
-                    }, 500);
+                    setTimeout(() => { window.scrollTo({ top: memory.scroll, behavior: 'instant' }); localStorage.removeItem('automotora_session'); }, 500);
                 } else {
+                    renderChips(globalBranches);
                     toggleMosaic(isMosaic);
                     renderAll();
                 }
-
-            } catch(e) { console.error("Error cargando."); }
-            loader(0);
-        }
-
-        function openLink(url) {
-            const session = { section: currentSection, filter: activeFilter, scroll: window.scrollY, mosaic: isMosaic };
-            localStorage.setItem('automotora_session', JSON.stringify(session));
-            window.location.href = url;
+            } catch(e) { console.error(e); }
+            showLoader(false); // Ocultar loader al terminar
         }
 
         function renderChips(branches) {
-            const container = document.getElementById('branchChips');
+            const container = document.getElementById('dynamicChips');
+            container.innerHTML = '';
             branches.forEach(b => {
                 const btn = document.createElement('button');
                 btn.className = "chip-branch px-8 py-3 rounded-2xl bg-white border border-slate-100 text-[10px] font-bold uppercase tracking-widest text-slate-400 italic";
                 btn.innerText = b[1];
-                btn.id = `chip-${b[1]}`;
                 btn.onclick = () => toggleFilter(b[1]);
                 container.appendChild(btn);
             });
+        }
+
+        function renderBrandChips(sucursal) {
+            const container = document.getElementById('dynamicChips');
+            container.innerHTML = '';
+            const marcas = [...new Set(globalInventory.filter(c => c.sucursalOrigen === sucursal).map(c => c.marca.toUpperCase()))];
+            marcas.forEach(m => {
+                const btn = document.createElement('button');
+                btn.className = "chip-brand px-8 py-3 rounded-2xl bg-white border border-slate-100 text-[10px] font-bold uppercase tracking-widest text-slate-400 italic";
+                if(brandFilter === m) btn.classList.add('chip-active');
+                btn.innerText = m;
+                btn.onclick = () => { brandFilter = (brandFilter === m) ? null : m; renderBrandChips(sucursal); renderAll(); };
+                container.appendChild(btn);
+            });
+        }
+
+        function resetBranchFilter() {
+            activeFilter = null;
+            brandFilter = null;
+            document.getElementById('headerDefault').classList.remove('hidden');
+            document.getElementById('headerBranch').classList.add('hidden');
+            renderChips(globalBranches);
+            updateNavUI();
+            renderAll();
         }
 
         function renderFooterBranches(branches) {
@@ -307,21 +342,31 @@
         }
 
         function toggleFilter(name, fromMemory = false) {
-            if (!fromMemory) activeFilter = (activeFilter === name) ? null : name;
-            else activeFilter = name;
+            activeFilter = name;
+            document.getElementById('headerDefault').classList.add('hidden');
+            document.getElementById('headerBranch').classList.remove('hidden');
+            document.getElementById('branchTitle').innerText = activeFilter;
             
-            document.getElementById('headerDefault').classList.toggle('hidden', !!activeFilter);
-            document.getElementById('headerBranch').classList.toggle('hidden', !activeFilter);
-            document.getElementById('branchSelectorArea').classList.toggle('hidden', !!activeFilter);
-            
-            if(activeFilter) {
-                document.getElementById('branchTitle').innerText = activeFilter;
-                renderBranchLogos(activeFilter);
-            }
-            
-            document.querySelectorAll('.chip-branch').forEach(b => b.classList.toggle('chip-active', b.innerText === activeFilter));
+            renderBranchLogos(activeFilter);
+            renderBrandChips(activeFilter);
+            updateNavUI();
             renderAll();
             if (!fromMemory) window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        function updateNavUI() {
+            const btnBrands = document.getElementById('btn-bottom-brands');
+            const btnAdmin = document.getElementById('btn-bottom-admin');
+            if (currentSection === 'admin') {
+                btnBrands.style.display = 'none';
+                btnAdmin.style.display = 'none';
+            } else if (activeFilter !== null) {
+                btnBrands.style.display = 'none';
+                btnAdmin.style.display = 'flex';
+            } else {
+                btnBrands.style.display = 'flex';
+                btnAdmin.style.display = 'flex';
+            }
         }
 
         function renderBranchLogos(branchName) {
@@ -330,7 +375,7 @@
             container.innerHTML = '';
             marcas.forEach(m => {
                 const logo = `https://logo.clearbit.com/${m.toLowerCase().replace(/\s/g, '')}.com`;
-                container.innerHTML += `<img src="${logo}" class="h-8 md:h-12 w-auto object-contain grayscale transition-all opacity-60 hover:opacity-100 hover:grayscale-0" onerror="this.style.display='none'">`;
+                container.innerHTML += `<img src="${logo}" onclick="setBrandFilter('${m}')" class="h-8 md:h-12 w-auto object-contain grayscale cursor-pointer transition-all hover:opacity-100 hover:grayscale-0" onerror="this.style.display='none'">`;
             });
         }
 
@@ -344,12 +389,21 @@
             });
         }
 
-        function setBrandFilter(m) { brandFilter = (brandFilter === m) ? null : m; renderAll(); toggleDrawer(); }
+        function setBrandFilter(m) { 
+            brandFilter = (brandFilter === m) ? null : m; 
+            if(activeFilter) renderBrandChips(activeFilter);
+            renderAll(); 
+            if(document.getElementById('brandDrawer').classList.contains('drawer-open')) toggleDrawer(); 
+        }
 
         function renderAll() {
             const container = document.getElementById('mainGrid');
             const term = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = globalInventory.filter(c => (!activeFilter || c.sucursalOrigen === activeFilter) && (!brandFilter || c.marca.toUpperCase() === brandFilter) && (!term || JSON.stringify(c).toLowerCase().includes(term)));
+            const filtered = globalInventory.filter(c => 
+                (!activeFilter || c.sucursalOrigen === activeFilter) && 
+                (!brandFilter || c.marca.toUpperCase() === brandFilter) && 
+                (!term || JSON.stringify(c).toLowerCase().includes(term))
+            );
             container.innerHTML = '';
             filtered.forEach((c) => {
                 const isRes = c.estado === "Reservado";
@@ -358,7 +412,7 @@
                 
                 container.innerHTML += `
                     <div class="group bg-white rounded-[2rem] overflow-hidden border border-slate-100 flex flex-col relative transition-all duration-500 shadow-xl">
-                        <div class="absolute top-8 left-8 z-10 bg-white/60 backdrop-blur-md px-4 py-1.5 rounded-full text-[8px] font-black uppercase text-slate-500 italic border border-slate-200">${c.sucursalOrigen}</div>
+                        <div class="absolute top-8 left-8 z-10 bg-white/60 backdrop-blur-md px-4 py-1.5 rounded-full text-[8px] font-black uppercase text-slate-500 italic border border-white/20">${c.sucursalOrigen}</div>
                         <div class="h-64 bg-slate-50 flex items-center justify-center relative">
                             <img src="${logo}" class="h-8 absolute top-8 right-8 opacity-20 grayscale transition-all duration-700 group-hover:opacity-100 group-hover:grayscale-0" onerror="this.style.display='none'">
                             <span class="material-symbols-outlined text-8xl text-slate-200 transition-transform duration-1000 group-hover:scale-110">directions_car</span>
@@ -375,7 +429,7 @@
                             <p class="text-4xl font-black text-primary mb-8 tracking-tighter italic leading-none">$${Number(c.pVenta).toLocaleString('de-DE')}</p>
                             <div class="flex gap-3">
                                 <button onclick="openLink('https://wa.me/${WHATSAPP_NUMBER}?text=${msg}')" class="flex-1 bg-slate-50 hover:bg-primary py-6 rounded-[2rem] font-bold text-[10px] uppercase tracking-widest transition-all text-center text-slate-400 hover:text-white shadow-sm italic leading-none">Consultar</button>
-                                ${c.instagram ? `<button onclick="openLink('${c.instagram}')" class="w-16 h-16 flex items-center justify-center bg-slate-50 border border-slate-100 rounded-[1.8rem] hover:bg-slate-100 text-slate-400 leading-none"><span class="material-symbols-outlined text-xl">photo_camera</span></button>` : ''}
+                                ${c.instagram ? `<button onclick="openLink('${c.instagram}')" class="w-16 h-16 flex items-center justify-center bg-slate-50 rounded-[1.8rem] text-slate-400 hover:bg-slate-100 transition-all"><span class="material-symbols-outlined">photo_camera</span></button>` : ''}
                             </div>
                         </div>
                     </div>`;
@@ -389,7 +443,13 @@
             const mosaicBtn = document.getElementById('mosaicFloatingBtn');
             if (id === 'admin') mosaicBtn.style.display = 'none';
             else mosaicBtn.style.display = 'flex';
+            updateNavUI();
             if (scrollUp) window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        function openLink(url) {
+            localStorage.setItem('automotora_session', JSON.stringify({ section: currentSection, filter: activeFilter, scroll: window.scrollY, mosaic: isMosaic }));
+            window.location.href = url;
         }
 
         window.onload = initApp;
