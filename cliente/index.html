@@ -28,19 +28,15 @@
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #ffffff; color: #0f172a; overflow-x: hidden; margin: 0; padding: 0; }
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-        #loadingBar { height: 3px; background: #137fec; width: 0%; position: fixed; top: 0; transition: 0.4s; z-index: 9999; }
         
-        #globalLoader {
-            position: fixed; inset: 0; background: white; z-index: 9999;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 0.5s ease, visibility 0.5s;
+        .skeleton { background: #f1f5f9; position: relative; overflow: hidden; }
+        .skeleton::after {
+            content: ""; position: absolute; top: 0; right: 0; bottom: 0; left: 0;
+            transform: translateX(-100%);
+            background: linear-gradient(90deg, rgba(255,255,255,0) 0, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0) 100%);
+            animation: shimmer 1.5s infinite;
         }
-        .spinner {
-            width: 50px; height: 50px; border: 5px solid #f3f3f3;
-            border-top: 5px solid #137fec; border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes shimmer { 100% { transform: translateX(100%); } }
 
         .chip-branch, .chip-brand { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); flex-shrink: 0; cursor: pointer; }
         .chip-active { background-color: #137fec !important; color: #ffffff !important; transform: scale(1.05); }
@@ -56,8 +52,8 @@
             gap: 0.75rem !important; padding-left: 0.5rem !important; padding-right: 0.5rem !important;
         }
         #mainGrid.grid-cols-mosaic .p-10 { padding: 0.8rem !important; }
-        #mainGrid.grid-cols-mosaic h3 { font-size: 0.8rem !important; line-height: 0.9rem !important; margin-bottom: 0.3rem !important; }
-        #mainGrid.grid-cols-mosaic .text-4xl { font-size: 1.1rem !important; margin-bottom: 0.5rem !important; }
+        #mainGrid.grid-cols-mosaic h3 { font-size: 0.8rem !important; line-height: 0.9rem !important; }
+        #mainGrid.grid-cols-mosaic .text-4xl { font-size: 1.1rem !important; }
         #mainGrid.grid-cols-mosaic .h-64 { height: 100px !important; }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -80,14 +76,7 @@
 </head>
 
 <body class="font-display antialiased">
-    <div id="globalLoader">
-        <img src="../img/logo.png" class="w-32 h-auto mb-8 animate-pulse" alt="Cargando...">
-        <div class="spinner"></div>
-        <p class="mt-4 text-xs font-black uppercase tracking-widest text-slate-400 italic">Cargando Stock...</p>
-    </div>
-
-    <div id="loadingBar"></div>
-
+    
     <button id="mosaicFloatingBtn" onclick="toggleMosaic()" class="lg:hidden fixed bottom-24 left-6 z-[110] bg-white text-slate-900 w-14 h-14 rounded-full shadow-2xl flex items-center justify-center border border-slate-200 active:scale-95 transition-all">
         <span id="mosaicIcon" class="material-symbols-outlined">grid_view</span>
     </button>
@@ -95,7 +84,7 @@
     <aside class="hidden lg:flex fixed left-0 top-0 h-screen w-[280px] bg-white border-r border-slate-100 flex-col z-50">
         <div class="p-8">
             <div class="flex flex-col items-center mb-10 fade-in">
-                <img src="../img/logo.png" alt="Logo" class="w-24 h-auto mb-4 object-contain" onerror="this.style.display='none'">
+                <img src="../img/logo.png" alt="Logo" class="w-24 h-auto mb-4 object-contain">
                 <span class="text-xl font-bold tracking-tight text-slate-900 leading-none uppercase italic">Automotora</span>
             </div>
             <nav class="space-y-2">
@@ -136,6 +125,7 @@
             <header id="dynamicHeader" class="relative py-16 md:py-32 px-6 text-center">
                 <img src="../img/logo.png" class="watermark-bg" alt="">
                 <div class="header-overlay"></div>
+                
                 <div id="headerDefault" class="header-content fade-in">
                     <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 mb-6 text-white">
                         <span class="text-[10px] font-black uppercase tracking-widest italic">Tu socio de confianza en el sur</span>
@@ -145,24 +135,32 @@
                         Somos una automotora de confianza en <b>Puerto Varas</b>, donde la transparencia y la seguridad se encuentran para que compres o vendas tu vehículo con total tranquilidad.
                     </p>
                 </div>
+
                 <div id="headerBranch" class="header-content hidden fade-in">
                     <button onclick="resetBranchFilter()" class="mb-4 text-white font-bold text-[10px] uppercase tracking-widest flex items-center gap-2 mx-auto">
                         <span class="material-symbols-outlined text-sm">arrow_back</span> Ver todas las sucursales
                     </button>
                     <h1 id="branchTitle" class="text-4xl md:text-7xl font-black tracking-tighter leading-tight uppercase text-white mb-8 italic text-shadow-lg">---</h1>
-                    <div id="branchBrandLogos" class="flex flex-wrap justify-center gap-6 md:gap-12 transition-all opacity-60"></div>
-                </div>
+                    </div>
             </header>
 
             <div id="filterContainerArea" class="max-w-7xl mx-auto px-6 mb-12 overflow-x-auto no-scrollbar pt-8">
-                <div id="dynamicChips" class="flex flex-nowrap md:flex-wrap justify-start md:justify-center gap-3"></div>
+                <div id="dynamicChips" class="flex flex-nowrap md:flex-wrap justify-start md:justify-center gap-3">
+                    <div class="skeleton w-32 h-10 rounded-2xl"></div>
+                    <div class="skeleton w-32 h-10 rounded-2xl"></div>
+                </div>
             </div>
 
             <main class="max-w-7xl mx-auto px-4 md:px-10 pb-20">
                 <div class="mb-10">
                     <input id="searchInput" onkeyup="renderAll()" type="text" class="w-full md:w-96 px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 text-sm" placeholder="Buscar vehículo..."/>
                 </div>
-                <div id="mainGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8 transition-all duration-500"></div>
+                
+                <div id="mainGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8 transition-all duration-500">
+                    <div class="skeleton h-[450px] rounded-[2rem]"></div>
+                    <div class="skeleton h-[450px] rounded-[2rem]"></div>
+                    <div class="skeleton h-[450px] rounded-[2rem]"></div>
+                </div>
             </main>
 
             <footer class="bg-slate-900 text-slate-400 py-16 pb-32 lg:pb-16">
@@ -170,7 +168,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12 border-b border-slate-800 pb-12 text-center md:text-left">
                         <div>
                             <div class="flex items-center justify-center md:justify-start gap-3 mb-6">
-                                <img src="../img/logo.png" class="h-10 w-auto brightness-0 invert" onerror="this.style.display='none'">
+                                <img src="../img/logo.png" class="h-10 w-auto brightness-0 invert">
                                 <span class="text-xl font-bold tracking-tight text-white uppercase italic">Automotora</span>
                             </div>
                             <p class="text-sm">Confianza y garantía en Puerto Varas.</p>
@@ -191,14 +189,14 @@
         </section>
 
         <section id="section-admin" class="section-view hidden h-screen w-full bg-slate-50 overflow-hidden">
-            <iframe id="adminIframe" src="https://admi-nautomotora.vercel.app/" class="w-full h-full border-none" style="height: calc(100vh - 85px);"></iframe>
+            <iframe id="adminIframe" src="https://admi-nautomotora.vercel.app/" class="w-full h-full border-none"></iframe>
         </section>
     </div>
 
     <aside id="brandDrawer" class="fixed top-0 left-0 h-full w-[280px] bg-white z-[200] border-r border-slate-100 -translate-x-full shadow-2xl overflow-y-auto">
         <div class="p-8">
             <div class="flex items-center justify-between mb-8">
-                <span class="text-xs font-black uppercase tracking-widest text-primary">Filtrar por Marca</span>
+                <span class="text-xs font-black uppercase tracking-widest text-primary">Marcas</span>
                 <button onclick="toggleDrawer()" class="material-symbols-outlined text-slate-400">close</button>
             </div>
             <div id="drawerBrandList" class="grid grid-cols-2 gap-4"></div>
@@ -217,12 +215,6 @@
         let currentSection = 'catalog';
         let isMosaic = false;
 
-        function showLoader(show) {
-            const loader = document.getElementById('globalLoader');
-            if(show) { loader.style.visibility = 'visible'; loader.style.opacity = '1'; }
-            else { loader.style.opacity = '0'; setTimeout(() => { loader.style.visibility = 'hidden'; }, 500); }
-        }
-
         function toggleDrawer() { document.getElementById('brandDrawer').classList.toggle('drawer-open'); }
 
         function toggleMosaic(forceState = null) {
@@ -240,10 +232,10 @@
         }
 
         async function initApp() {
-            showLoader(true);
             try {
                 const resB = await fetch(`${SCRIPT_URL}?key=${KEY}&action=get_branches`);
                 globalBranches = await resB.json();
+                renderChips(globalBranches);
                 renderFooterBranches(globalBranches);
 
                 const promises = globalBranches.map(b => fetch(`${SCRIPT_URL}?action=read&key=${KEY}&branch=${b[1]}`).then(r => r.json()));
@@ -251,7 +243,8 @@
                 
                 results.forEach((data, index) => {
                     const branchName = globalBranches[index][1];
-                    globalInventory = [...globalInventory, ...data.filter(c => c.estado !== "Vendido").map(c => ({...c, sucursalOrigen: branchName}))];
+                    const cleanData = data.filter(c => c.estado !== "Vendido").map(c => ({...c, sucursalOrigen: branchName}));
+                    globalInventory = [...globalInventory, ...cleanData];
                 });
 
                 globalInventory.sort(() => Math.random() - 0.5);
@@ -259,34 +252,15 @@
                 
                 const mosaicPref = localStorage.getItem('automotora_mosaic_pref');
                 if (mosaicPref !== null) isMosaic = (mosaicPref === 'true');
-
-                const memory = JSON.parse(localStorage.getItem('automotora_session'));
-                if (memory) {
-                    currentSection = memory.section || 'catalog';
-                    activeFilter = memory.filter || null;
-                    showSection(currentSection, false);
-                    if (activeFilter) toggleFilter(activeFilter, true);
-                    toggleMosaic(isMosaic);
-                    renderAll(); 
-                    setTimeout(() => { window.scrollTo({ top: memory.scroll, behavior: 'instant' }); localStorage.removeItem('automotora_session'); }, 500);
-                } else {
-                    renderChips(globalBranches);
-                    toggleMosaic(isMosaic);
-                    renderAll();
-                }
-            } catch(e) { console.error(e); }
-            showLoader(false);
+                toggleMosaic(isMosaic);
+                renderAll();
+            } catch(e) { console.error("Error."); }
         }
 
-        // LÓGICA DE CLIC EN STOCK (BOTÓN HOME)
         function handleStockClick() {
-            if (currentSection !== 'catalog') {
-                showSection('catalog');
-            } else if (activeFilter !== null) {
-                resetBranchFilter(); // Si ya está en catálogo pero en sucursal, resetea
-            } else {
-                window.scrollTo({ top: 0, behavior: 'smooth' }); // Si ya está arriba y sin filtros, solo sube
-            }
+            if (currentSection !== 'catalog') showSection('catalog');
+            else if (activeFilter !== null) resetBranchFilter();
+            else window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function renderChips(branches) {
@@ -323,7 +297,6 @@
             renderChips(globalBranches);
             updateNavUI();
             renderAll();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function renderFooterBranches(branches) {
@@ -333,16 +306,15 @@
             });
         }
 
-        function toggleFilter(name, fromMemory = false) {
+        function toggleFilter(name) {
             activeFilter = name;
             document.getElementById('headerDefault').classList.add('hidden');
             document.getElementById('headerBranch').classList.remove('hidden');
             document.getElementById('branchTitle').innerText = activeFilter;
-            renderBranchLogos(activeFilter);
             renderBrandChips(activeFilter);
             updateNavUI();
             renderAll();
-            if (!fromMemory) window.scrollTo({top: 0, behavior: 'smooth'});
+            window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
         function updateNavUI() {
@@ -357,23 +329,12 @@
             }
         }
 
-        function renderBranchLogos(branchName) {
-            const container = document.getElementById('branchBrandLogos');
-            const marcas = [...new Set(globalInventory.filter(c => c.sucursalOrigen === branchName).map(c => c.marca.toUpperCase()))];
-            container.innerHTML = '';
-            marcas.forEach(m => {
-                const logo = `https://logo.clearbit.com/${m.toLowerCase().replace(/\s/g, '')}.com`;
-                container.innerHTML += `<img src="${logo}" onclick="setBrandFilter('${m}')" class="h-8 md:h-12 w-auto object-contain grayscale cursor-pointer opacity-40 hover:opacity-100 hover:grayscale-0" onerror="this.style.display='none'">`;
-            });
-        }
-
         function renderBrandDrawer() {
             const container = document.getElementById('drawerBrandList');
             const marcas = [...new Set(globalInventory.map(c => c.marca.toUpperCase()))];
             container.innerHTML = '';
             marcas.forEach(m => {
-                const logo = `https://logo.clearbit.com/${m.toLowerCase().replace(/\s/g, '')}.com`;
-                container.innerHTML += `<button onclick="setBrandFilter('${m}')" class="flex flex-col items-center p-6 rounded-3xl bg-slate-50 border border-slate-100 group transition-all"><img src="${logo}" class="h-8 w-auto mb-4 grayscale group-hover:grayscale-0 transition-all" onerror="this.src='https://cdn-icons-png.flaticon.com/512/741/741407.png'"><span class="text-[8px] font-bold uppercase text-slate-400 group-hover:text-primary italic">${m}</span></button>`;
+                container.innerHTML += `<button onclick="setBrandFilter('${m}')" class="p-4 bg-slate-50 rounded-xl text-[10px] font-bold uppercase italic">${m}</button>`;
             });
         }
 
@@ -393,6 +354,10 @@
                 (!term || JSON.stringify(c).toLowerCase().includes(term))
             );
             container.innerHTML = '';
+            if(filtered.length === 0 && globalInventory.length > 0) {
+                container.innerHTML = '<div class="col-span-full py-20 text-center text-slate-300 font-black uppercase italic">No hay resultados</div>';
+                return;
+            }
             filtered.forEach((c) => {
                 const isRes = c.estado === "Reservado";
                 const msg = encodeURIComponent(`Consulta: ${c.marca} ${c.modelo} - ${c.sucursalOrigen}`);
@@ -402,7 +367,7 @@
                         <div class="absolute top-8 left-8 z-10 bg-white/60 backdrop-blur-md px-4 py-1.5 rounded-full text-[8px] font-black uppercase text-slate-500 italic border border-white/20">${c.sucursalOrigen}</div>
                         <div class="h-64 bg-slate-50 flex items-center justify-center relative">
                             <img src="${logo}" class="h-8 absolute top-8 right-8 opacity-20 grayscale transition-all duration-700 group-hover:opacity-100 group-hover:grayscale-0" onerror="this.style.display='none'">
-                            <span class="material-symbols-outlined text-8xl text-slate-200">directions_car</span>
+                            <span class="material-symbols-outlined text-8xl text-slate-200 transition-transform duration-1000 group-hover:scale-110">directions_car</span>
                             ${isRes ? '<div class="absolute inset-0 bg-primary/10 flex items-center justify-center backdrop-blur-sm z-20 font-black"><span class="bg-primary text-white px-8 py-2 rounded-full text-[10px] uppercase tracking-widest leading-none">Reservado</span></div>' : ''}
                         </div>
                         <div class="p-10 flex flex-col">
