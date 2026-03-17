@@ -39,7 +39,7 @@
         @media (min-width: 1024px) { .main-content { margin-left: 280px; } }
         @media (max-width: 1023px) { .section-view { padding-bottom: 100px; } }
 
-        /* MODO MOSAICO */
+        /* MODO MOSAICO MÓVIL (2 COLUMNAS) */
         #mainGrid.grid-cols-mosaic {
             grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
             gap: 0.75rem !important;
@@ -50,7 +50,11 @@
         #mainGrid.grid-cols-mosaic h3 { font-size: 0.8rem !important; line-height: 0.9rem !important; margin-bottom: 0.3rem !important; }
         #mainGrid.grid-cols-mosaic .text-4xl { font-size: 1.1rem !important; margin-bottom: 0.5rem !important; }
         #mainGrid.grid-cols-mosaic .h-64 { height: 100px !important; }
+        #mainGrid.grid-cols-mosaic .material-symbols-outlined.text-8xl { font-size: 2.2rem !important; }
+        #mainGrid.grid-cols-mosaic .text-\[9px\] { font-size: 6.5px !important; }
         #mainGrid.grid-cols-mosaic .py-6 { padding: 0.5rem 0 !important; border-radius: 0.75rem !important; font-size: 8px !important; }
+        #mainGrid.grid-cols-mosaic .w-16 { width: 2.2rem !important; height: 2.2rem !important; border-radius: 0.6rem !important; }
+        #mainGrid.grid-cols-mosaic .absolute.top-8 { top: 0.3rem !important; left: 0.3rem !important; padding: 1px 5px !important; font-size: 5px !important; }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .fade-in { animation: fadeIn 0.6s ease-out forwards; }
@@ -129,7 +133,7 @@
 
                 <div id="headerBranch" class="hidden fade-in">
                     <button onclick="toggleFilter(activeFilter)" class="mb-4 text-primary font-bold text-[10px] uppercase tracking-widest flex items-center gap-2 mx-auto">
-                        <span class="material-symbols-outlined text-sm">arrow_back</span> Volver
+                        <span class="material-symbols-outlined text-sm">arrow_back</span> Ver todas las sucursales
                     </button>
                     <h1 id="branchTitle" class="text-4xl md:text-7xl font-black tracking-tighter leading-tight uppercase text-slate-900 mb-8 italic">---</h1>
                     <div id="branchBrandLogos" class="flex flex-wrap justify-center gap-6 md:gap-12 transition-all duration-700 opacity-40"></div>
@@ -154,9 +158,9 @@
                 <div class="max-w-7xl mx-auto px-6 italic font-medium">
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12 border-b border-slate-800 pb-12 text-center md:text-left">
                         <div>
-                            <div class="flex flex-col items-center md:items-start gap-4 mb-6">
+                            <div class="flex flex-col items-center md:items-start gap-4 mb-6 text-white uppercase italic font-bold">
                                 <img src="../img/logo.png" class="h-10 w-auto brightness-0 invert" onerror="this.style.display='none'">
-                                <span class="text-xl font-bold tracking-tight text-white uppercase italic">Automotora</span>
+                                <span>Automotora</span>
                             </div>
                             <p class="text-sm">Confianza y garantía en Puerto Varas.</p>
                         </div>
@@ -200,6 +204,7 @@
         function loader(p) { document.getElementById('loadingBar').style.width = p + "%"; }
         function toggleDrawer() { document.getElementById('brandDrawer').classList.toggle('drawer-open'); }
 
+        // Mosaico con persistencia total
         function toggleMosaic(forceState = null) {
             isMosaic = (forceState !== null) ? forceState : !isMosaic;
             const grid = document.getElementById('mainGrid');
@@ -258,8 +263,13 @@
             loader(0);
         }
 
+        // SALIDA CON MEMORIA COMPLETA
         function openLink(url) {
-            const session = { section: currentSection, filter: activeFilter, scroll: window.scrollY };
+            const session = {
+                section: currentSection,
+                filter: activeFilter,
+                scroll: window.scrollY
+            };
             localStorage.setItem('automotora_session', JSON.stringify(session));
             window.location.href = url;
         }
@@ -286,13 +296,16 @@
         function toggleFilter(name, fromMemory = false) {
             if (!fromMemory) activeFilter = (activeFilter === name) ? null : name;
             else activeFilter = name;
+            
             document.getElementById('headerDefault').classList.toggle('hidden', !!activeFilter);
             document.getElementById('headerBranch').classList.toggle('hidden', !activeFilter);
             document.getElementById('branchSelectorArea').classList.toggle('hidden', !!activeFilter);
+            
             if(activeFilter) {
                 document.getElementById('branchTitle').innerText = activeFilter;
                 renderBranchLogos(activeFilter);
             }
+            
             document.querySelectorAll('.chip-branch').forEach(b => b.classList.toggle('chip-active', b.innerText === activeFilter));
             renderAll();
             if (!fromMemory) window.scrollTo({top: 0, behavior: 'smooth'});
@@ -304,7 +317,7 @@
             container.innerHTML = '';
             marcas.forEach(m => {
                 const logo = `https://logo.clearbit.com/${m.toLowerCase().replace(/\s/g, '')}.com`;
-                container.innerHTML += `<img src="${logo}" class="h-8 md:h-12 w-auto object-contain grayscale transition-all opacity-40" onerror="this.style.display='none'">`;
+                container.innerHTML += `<img src="${logo}" class="h-8 md:h-12 w-auto object-contain grayscale transition-all opacity-40 hover:grayscale-0" onerror="this.style.display='none'">`;
             });
         }
 
@@ -329,23 +342,27 @@
                 const isRes = c.estado === "Reservado";
                 const msg = encodeURIComponent(`Consulta: ${c.marca} ${c.modelo} - ${c.sucursalOrigen}`);
                 const logo = `https://logo.clearbit.com/${c.marca.toLowerCase().replace(/\s/g, '')}.com`;
+                
                 container.innerHTML += `
                     <div class="group bg-white rounded-[2rem] overflow-hidden border border-slate-100 flex flex-col relative transition-all duration-500 shadow-xl">
                         <div class="absolute top-8 left-8 z-10 bg-white/60 backdrop-blur-md px-4 py-1.5 rounded-full text-[8px] font-black uppercase text-slate-500 italic border border-slate-200">${c.sucursalOrigen}</div>
                         <div class="h-64 bg-slate-50 flex items-center justify-center relative">
-                            <img src="${logo}" class="h-8 absolute top-8 right-8 opacity-20 grayscale" onerror="this.style.display='none'">
-                            <span class="material-symbols-outlined text-8xl text-slate-200">directions_car</span>
+                            <img src="${logo}" class="h-8 absolute top-8 right-8 opacity-20 grayscale transition-all duration-700 group-hover:opacity-100 group-hover:grayscale-0" onerror="this.style.display='none'">
+                            <span class="material-symbols-outlined text-8xl text-slate-200 transition-transform duration-1000 group-hover:scale-110">directions_car</span>
                             ${isRes ? '<div class="absolute inset-0 bg-primary/10 flex items-center justify-center backdrop-blur-sm z-20 font-black"><span class="bg-primary text-white px-8 py-2 rounded-full text-[10px] uppercase tracking-widest leading-none">Reservado</span></div>' : ''}
                         </div>
                         <div class="p-10 flex flex-col">
-                            <h3 class="text-2xl font-black uppercase italic text-slate-900 mb-2 leading-none">${c.marca} ${c.modelo}</h3>
+                            <h3 class="text-2xl font-black uppercase italic text-slate-900 mb-2 leading-none tracking-tight group-hover:text-primary transition-colors italic leading-none">${c.marca} ${c.modelo}</h3>
+                            
                             <div class="grid grid-cols-2 gap-y-2 opacity-30 mb-8 text-[9px] font-bold italic uppercase tracking-widest leading-none">
                                 <div class="flex items-center gap-2"><span class="material-symbols-outlined text-xs text-primary">calendar_today</span> ${c.anio}</div>
                                 <div class="flex items-center gap-2"><span class="material-symbols-outlined text-xs text-primary">speed</span> ${Number(c.km).toLocaleString('de-DE')} KM</div>
                                 <div class="flex items-center gap-2"><span class="material-symbols-outlined text-xs text-primary text-emerald-500 font-bold">bolt</span> ${c.combustible || 'S/I'}</div>
                                 <div class="flex items-center gap-2"><span class="material-symbols-outlined text-xs text-primary">palette</span> ${c.color || 'S/I'}</div>
                             </div>
+
                             <p class="text-4xl font-black text-primary mb-8 tracking-tighter italic leading-none">$${Number(c.pVenta).toLocaleString('de-DE')}</p>
+                            
                             <div class="flex gap-3">
                                 <button onclick="openLink('https://wa.me/${WHATSAPP_NUMBER}?text=${msg}')" class="flex-1 bg-slate-50 hover:bg-primary py-6 rounded-[2rem] font-bold text-[10px] uppercase tracking-widest transition-all text-center text-slate-400 hover:text-white shadow-sm italic leading-none">Consultar</button>
                                 ${c.instagram ? `<button onclick="openLink('${c.instagram}')" class="w-16 h-16 flex items-center justify-center bg-slate-50 border border-slate-100 rounded-[1.8rem] hover:bg-slate-100 text-slate-400 leading-none"><span class="material-symbols-outlined text-xl">photo_camera</span></button>` : ''}
