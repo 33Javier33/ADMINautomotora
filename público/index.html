@@ -39,7 +39,7 @@
         @media (min-width: 1024px) { .main-content { margin-left: 280px; } }
         @media (max-width: 1023px) { .section-view { padding-bottom: 100px; } }
 
-        /* MODO MOSAICO MÓVIL */
+        /* MODO MOSAICO */
         #mainGrid.grid-cols-mosaic {
             grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
             gap: 0.75rem !important;
@@ -51,10 +51,9 @@
         #mainGrid.grid-cols-mosaic .text-4xl { font-size: 1.1rem !important; margin-bottom: 0.5rem !important; }
         #mainGrid.grid-cols-mosaic .h-64 { height: 100px !important; }
         #mainGrid.grid-cols-mosaic .py-6 { padding: 0.5rem 0 !important; border-radius: 0.75rem !important; font-size: 8px !important; }
-        #mainGrid.grid-cols-mosaic .w-16 { width: 2.2rem !important; height: 2.2rem !important; }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .fade-in { animation: fadeIn 0.8s ease-out forwards; }
+        .fade-in { animation: fadeIn 0.6s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         
         .brand-logo-main { max-width: 200px; height: auto; margin: 0 auto; display: block; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.05)); }
@@ -148,7 +147,7 @@
                         <input id="searchInput" onkeyup="renderAll()" type="text" class="w-full pl-12 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 text-sm" placeholder="Buscar vehículo..."/>
                     </div>
                 </div>
-                <div id="mainGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8"></div>
+                <div id="mainGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8 transition-all duration-500"></div>
             </main>
 
             <footer class="bg-slate-900 text-slate-400 py-16">
@@ -332,7 +331,7 @@
                 const logo = `https://logo.clearbit.com/${c.marca.toLowerCase().replace(/\s/g, '')}.com`;
                 container.innerHTML += `
                     <div class="group bg-white rounded-[2rem] overflow-hidden border border-slate-100 flex flex-col relative transition-all duration-500 shadow-xl">
-                        <div class="absolute top-8 left-8 z-10 bg-white/60 backdrop-blur-md px-4 py-1.5 rounded-full text-[8px] font-black uppercase text-slate-500 italic border border-white/20">${c.sucursalOrigen}</div>
+                        <div class="absolute top-8 left-8 z-10 bg-white/60 backdrop-blur-md px-4 py-1.5 rounded-full text-[8px] font-black uppercase text-slate-500 italic border border-slate-200">${c.sucursalOrigen}</div>
                         <div class="h-64 bg-slate-50 flex items-center justify-center relative">
                             <img src="${logo}" class="h-8 absolute top-8 right-8 opacity-20 grayscale" onerror="this.style.display='none'">
                             <span class="material-symbols-outlined text-8xl text-slate-200">directions_car</span>
