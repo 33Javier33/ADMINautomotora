@@ -29,6 +29,7 @@
         body { font-family: 'Inter', sans-serif; background-color: #ffffff; color: #0f172a; overflow-x: hidden; margin: 0; padding: 0; }
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
         
+        /* --- EFECTO CARGA SKELETON (TU CÓDIGO) --- */
         .skeleton { background: #f1f5f9; position: relative; overflow: hidden; }
         .skeleton::after {
             content: ""; position: absolute; top: 0; right: 0; bottom: 0; left: 0;
@@ -45,22 +46,22 @@
         .drawer-open { transform: translateX(0) !important; }
 
         @media (min-width: 1024px) { .main-content { margin-left: 280px; } }
-        
-        /* Ajuste de sección para que Admin sea Full Screen */
-        .section-view { transition: all 0.3s ease; }
         @media (max-width: 1023px) { 
-            #section-catalog { padding-bottom: 100px; } 
-            #section-admin { padding-bottom: 0px !important; } 
+            .section-view { padding-bottom: 100px; } 
+            #section-admin { padding-bottom: 0px !important; }
         }
 
+        /* --- ESTILOS MOSAICO CARLOSPN (PROTEGIDOS) --- */
         #mainGrid.grid-cols-mosaic {
             grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
             gap: 0.75rem !important; padding-left: 0.5rem !important; padding-right: 0.5rem !important;
         }
         #mainGrid.grid-cols-mosaic .p-10 { padding: 0.8rem !important; }
-        #mainGrid.grid-cols-mosaic h3 { font-size: 0.8rem !important; line-height: 0.9rem !important; }
+        #mainGrid.grid-cols-mosaic h3 { font-size: 13px !important; line-height: 1 !important; margin-bottom: 4px !important; }
         #mainGrid.grid-cols-mosaic .text-4xl { font-size: 1.1rem !important; }
         #mainGrid.grid-cols-mosaic .h-64 { height: 100px !important; }
+        #mainGrid.grid-cols-mosaic .grid-cols-2 { display: flex !important; flex-direction: column !important; gap: 2px !important; }
+        #mainGrid.grid-cols-mosaic .grid-cols-2 div { font-size: 8px !important; }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .fade-in { animation: fadeIn 0.6s ease-out forwards; }
@@ -72,14 +73,13 @@
         .header-content { position: relative; z-index: 3; }
         .text-shadow-lg { text-shadow: 0 4px 12px rgba(0,0,0,0.8); }
 
-        /* BOTÓN VOLVER LATERAL (NO TAPA EL MENÚ SUPERIOR) */
+        /* BOTÓN STOCK LATERAL (SOLO ADMIN) */
         #btnReturnToStock {
             position: fixed; top: 50%; right: 0; transform: translateY(-50%);
             z-index: 9999; background: #137fec; color: white;
             padding: 20px 8px; border-radius: 20px 0 0 20px;
             display: none; flex-direction: column; align-items: center; gap: 8px;
-            box-shadow: -5px 0 20px rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: -5px 0 20px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2);
             border-right: none;
         }
     </style>
@@ -91,7 +91,7 @@
         <span id="mosaicIcon" class="material-symbols-outlined">grid_view</span>
     </button>
 
-    <button id="btnReturnToStock" onclick="showSection('catalog')" class="active:scale-90 transition-all">
+    <button id="btnReturnToStock" onclick="handleStockClick()" class="active:scale-90 transition-all">
         <span class="material-symbols-outlined text-xl">directions_car</span>
         <span class="text-[9px] font-black uppercase italic tracking-tighter" style="writing-mode: vertical-lr; transform: rotate(180deg);">STOCK</span>
     </button>
@@ -100,7 +100,7 @@
         <div class="p-8">
             <div class="flex flex-col items-center mb-10 fade-in">
                 <img src="../img/logo.png" alt="Logo" class="w-24 h-auto mb-4 object-contain">
-                <span class="text-xl font-bold tracking-tight text-slate-900 leading-none uppercase italic text-center">Automotora</span>
+                <span class="text-xl font-bold tracking-tight text-slate-900 leading-none uppercase italic">Automotora</span>
             </div>
             <nav class="space-y-2">
                 <button onclick="handleStockClick()" id="btn-nav-catalog" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl bg-primary text-white font-bold text-xs uppercase tracking-widest transition-all nav-btn shadow-lg italic">
@@ -172,6 +172,7 @@
                 <div id="mainGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8 transition-all duration-500">
                     <div class="skeleton h-[450px] rounded-[2rem]"></div>
                     <div class="skeleton h-[450px] rounded-[2rem]"></div>
+                    <div class="skeleton h-[450px] rounded-[2rem]"></div>
                 </div>
             </main>
         </section>
@@ -183,10 +184,7 @@
 
     <aside id="brandDrawer" class="fixed top-0 left-0 h-full w-[280px] bg-white z-[200] border-r border-slate-100 -translate-x-full shadow-2xl overflow-y-auto">
         <div class="p-8">
-            <div class="flex items-center justify-between mb-8">
-                <span class="text-xs font-black uppercase tracking-widest text-primary italic">Marcas</span>
-                <button onclick="toggleDrawer()" class="material-symbols-outlined text-slate-400">close</button>
-            </div>
+            <div class="flex items-center justify-between mb-8"><span class="text-xs font-black uppercase tracking-widest text-primary italic">Marcas</span><button onclick="toggleDrawer()" class="material-symbols-outlined text-slate-400">close</button></div>
             <div id="drawerBrandList" class="grid grid-cols-2 gap-4"></div>
         </div>
     </aside>
@@ -226,7 +224,7 @@
                 if (mosaicPref !== null) isMosaic = (mosaicPref === 'true');
                 toggleMosaic(isMosaic);
                 renderAll();
-            } catch(e) { console.error("Error al cargar."); }
+            } catch(e) { console.error("Error."); }
         }
 
         function handleStockClick() {
@@ -253,7 +251,7 @@
             const marcas = [...new Set(globalInventory.filter(c => c.sucursalOrigen === sucursal).map(c => c.marca.toUpperCase()))];
             marcas.forEach(m => {
                 const btn = document.createElement('button');
-                btn.className = "chip-brand px-8 py-3 rounded-2xl bg-white border border-slate-100 text-[10px] font-bold uppercase tracking-widest text-slate-400 italic";
+                btn.className = "chip-brand px-8 py-3 rounded-2xl bg-white border border-slate-100 text-[10px] font-bold uppercase italic tracking-widest text-slate-400";
                 if(brandFilter === m) btn.classList.add('chip-active');
                 btn.innerText = m;
                 btn.onclick = () => { brandFilter = (brandFilter === m) ? null : m; renderBrandChips(sucursal); renderAll(); };
@@ -266,7 +264,7 @@
             document.getElementById('headerDefault').classList.remove('hidden');
             document.getElementById('headerBranch').classList.add('hidden');
             renderChips(globalBranches);
-            renderAll();
+            updateNavUI(); renderAll();
         }
 
         function toggleFilter(name) {
@@ -275,8 +273,20 @@
             document.getElementById('headerBranch').classList.remove('hidden');
             document.getElementById('branchTitle').innerText = activeFilter;
             renderBrandChips(activeFilter);
-            renderAll();
+            updateNavUI(); renderAll();
             window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        function updateNavUI() {
+            const btnBrands = document.getElementById('btn-bottom-brands');
+            const bottomNav = document.getElementById('bottomNav');
+            const returnBtn = document.getElementById('btnReturnToStock');
+            if (currentSection === 'admin') {
+                bottomNav.style.display = 'none'; returnBtn.style.display = 'flex';
+            } else {
+                bottomNav.style.display = 'flex'; returnBtn.style.display = 'none';
+                btnBrands.style.display = (activeFilter !== null) ? 'none' : 'flex';
+            }
         }
 
         function renderBrandDrawer() {
@@ -292,7 +302,10 @@
             const container = document.getElementById('mainGrid'), term = document.getElementById('searchInput').value.toLowerCase();
             const filtered = globalInventory.filter(c => (!activeFilter || c.sucursalOrigen === activeFilter) && (!brandFilter || c.marca.toUpperCase() === brandFilter) && (!term || JSON.stringify(c).toLowerCase().includes(term)));
             container.innerHTML = '';
-            if(filtered.length === 0) { container.innerHTML = '<div class="col-span-full py-20 text-center text-slate-300 font-black uppercase italic">No hay resultados</div>'; return; }
+            if(filtered.length === 0 && globalInventory.length > 0) {
+                container.innerHTML = '<div class="col-span-full py-20 text-center text-slate-300 font-black uppercase italic">No hay resultados</div>';
+                return;
+            }
             filtered.forEach((c) => {
                 const isRes = c.estado === "Reservado", msg = encodeURIComponent(`Consulta: ${c.marca} ${c.modelo} - ${c.sucursalOrigen}`);
                 const logo = `https://logo.clearbit.com/${c.marca.toLowerCase().replace(/\s/g, '')}.com`;
@@ -314,8 +327,8 @@
                             </div>
                             <p class="text-4xl font-black text-primary mb-8 italic leading-none">$${Number(c.pVenta).toLocaleString('de-DE')}</p>
                             <div class="flex gap-3">
-                                <button onclick="openLink('https://wa.me/${WHATSAPP_NUMBER}?text=${msg}')" class="flex-1 bg-slate-50 hover:bg-primary py-6 rounded-[2rem] font-bold text-[10px] uppercase text-slate-400 hover:text-white transition-all italic shadow-sm">Consultar</button>
-                                ${c.instagram ? `<button onclick="openLink('${c.instagram}')" class="w-16 h-16 flex items-center justify-center bg-slate-50 rounded-[1.8rem] text-slate-400 hover:bg-slate-100 transition-all"><span class="material-symbols-outlined text-xl">photo_camera</span></button>` : ''}
+                                <button onclick="window.location.href='https://wa.me/${WHATSAPP_NUMBER}?text=${msg}'" class="flex-1 bg-slate-50 hover:bg-primary hover:text-white py-6 rounded-[2rem] font-bold text-[10px] uppercase transition-all italic shadow-sm">Consultar</button>
+                                ${c.instagram ? `<button onclick="window.location.href='${c.instagram}'" class="w-16 h-16 flex items-center justify-center bg-slate-50 rounded-[1.8rem] text-slate-400 hover:bg-slate-100 transition-all"><span class="material-symbols-outlined text-xl">photo_camera</span></button>` : ''}
                             </div>
                         </div>
                     </div>`;
@@ -326,24 +339,10 @@
             currentSection = id;
             document.querySelectorAll('.section-view').forEach(s => s.classList.add('hidden'));
             document.getElementById(`section-${id}`).classList.remove('hidden');
-            
-            const mosaicBtn = document.getElementById('mosaicFloatingBtn');
-            const bottomNav = document.getElementById('bottomNav');
-            const returnBtn = document.getElementById('btnReturnToStock');
-
-            if (id === 'admin') {
-                mosaicBtn.style.display = 'none';
-                bottomNav.style.display = 'none'; // DESAPARECE FÍSICAMENTE
-                returnBtn.style.display = 'flex'; // BOTÓN LATERAL DERECHO
-            } else {
-                mosaicBtn.style.display = 'flex';
-                bottomNav.style.display = 'flex';
-                returnBtn.style.display = 'none';
-            }
-            window.scrollTo({top: 0, behavior: 'smooth'});
+            document.getElementById('mosaicFloatingBtn').style.display = id === 'admin' ? 'none' : 'flex';
+            updateNavUI(); window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
-        function openLink(url) { window.location.href = url; }
         window.onload = initApp;
     </script>
 </body>
