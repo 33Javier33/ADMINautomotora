@@ -87,9 +87,8 @@
             <header id="dynamicHeader" class="relative py-20 md:py-40 px-6 text-center bg-slate-900 overflow-hidden">
                 <img src="../img/logo.png" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 min-w-full min-h-full object-cover opacity-40 z-10">
                 <div class="absolute inset-0 bg-gradient-to-b from-slate-900/75 to-slate-900/90 z-20"></div>
-                
-                <div id="headerDefault" class="relative z-30 animate-fade-in text-white">
-                    <div class="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-white/10 border border-white/20 mb-8">
+                <div id="headerDefault" class="relative z-30 animate-fade-in text-white text-center">
+                    <div class="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-white/10 border border-white/20 mb-8 mx-auto">
                         <span class="text-[10px] md:text-[12px] font-black uppercase tracking-[0.3em] italic">Excelencia Automotriz en Puerto Varas</span>
                     </div>
                     <h1 class="text-5xl md:text-8xl font-black tracking-tighter mb-6 leading-none uppercase italic">Automotora <span class="text-primary">Stock</span></h1>
@@ -98,18 +97,15 @@
                         <p class="text-white/80 text-sm md:text-lg leading-relaxed italic font-medium">Entendemos que un vehículo es más que motor y carrocería; es la seguridad de tu familia, el fruto de tu esfuerzo y el compañero de tus próximas aventuras por el sur.</p>
                     </div>
                 </div>
-
                 <div id="headerBranch" class="relative z-30 hidden animate-fade-in text-white">
                     <button onclick="resetBranchFilter()" class="mb-4 font-bold text-[10px] uppercase tracking-widest flex items-center gap-2 mx-auto italic"><span class="material-symbols-outlined text-sm">arrow_back</span> Ver todas las sucursales</button>
-                    <h1 id="branchTitle" class="text-4xl md:text-7xl font-black tracking-tighter leading-tight uppercase italic">---</h1>
+                    <h1 id="branchTitle" class="text-4xl md:text-7xl font-black tracking-tighter leading-tight uppercase italic text-center">---</h1>
                 </div>
             </header>
 
             <div class="max-w-7xl mx-auto px-6 mb-12 overflow-x-auto [scrollbar-width:none] pt-8 text-center">
                 <div id="dynamicChips" class="flex flex-nowrap md:flex-wrap justify-start md:justify-center gap-3">
-                    <div class="w-32 h-10 bg-slate-100 rounded-2xl relative overflow-hidden">
-                        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer"></div>
-                    </div>
+                    <div class="w-32 h-10 bg-slate-100 rounded-2xl relative overflow-hidden"><div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer"></div></div>
                 </div>
             </div>
 
@@ -118,9 +114,7 @@
                     <input id="searchInput" onkeyup="renderAll()" type="text" class="w-full md:w-96 px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 text-sm italic focus:ring-2 focus:ring-primary outline-none transition-all shadow-sm" placeholder="Buscar vehículo..."/>
                 </div>
                 <div id="mainGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8 transition-all duration-500">
-                    <div class="h-[400px] bg-slate-50 rounded-[2rem] relative overflow-hidden">
-                        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer"></div>
-                    </div>
+                    <div class="h-[400px] bg-slate-50 rounded-[2rem] relative overflow-hidden"><div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer"></div></div>
                 </div>
             </main>
 
@@ -132,8 +126,8 @@
                     </div>
                     <div class="space-y-6">
                         <h4 class="text-primary font-black uppercase italic tracking-widest">Contacto Directo</h4>
-                        <a href="tel:+56920178076" class="block text-2xl font-black italic hover:text-primary transition-colors">+56 9 2017 8076</a>
-                        <a href="mailto:c.javier.p.naut@gmail.com" class="block text-sm font-bold italic text-slate-400 hover:text-white transition-colors">c.javier.p.naut@gmail.com</a>
+                        <a href="tel:+56920078076" class="block text-2xl font-black italic hover:text-primary transition-colors">+56 9 2007 8076</a>
+                        <a href="mailto:c.javier.p.nauto@gmail.com" class="block text-sm font-bold italic text-slate-400 hover:text-white transition-colors">c.javier.p.nauto@gmail.com</a>
                     </div>
                     <div class="flex flex-col justify-end items-start md:items-end">
                         <p class="text-[10px] font-black uppercase italic tracking-[0.5em] text-slate-500 mb-2">Desarrollado por</p>
@@ -158,13 +152,17 @@
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxpb_JPinHuk2Ex44UWqZHROfhPXUbmzSLmDfh34SdGzzKh9W5fPPBpVdxuPRJHbENa/exec"; 
         const KEY = "CPN_INTERACTIVE_2026_SECURE";
-        const WHATSAPP_NUMBER = "56920178076";
+        const WHATSAPP_NUMBER = "56920078076";
         
         let globalInventory = [], globalBranches = [], activeFilter = null, brandFilter = null, currentSection = 'catalog', isMosaic = false;
 
         function saveState() {
-            const state = { activeFilter, brandFilter, currentSection, isMosaic, scrollPos: window.scrollY };
-            localStorage.setItem('automotora_state', JSON.stringify(state));
+            // CRÍTICO: Solo guardar scroll si el catálogo está visible
+            const catalog = document.getElementById('section-catalog');
+            if (!catalog.classList.contains('hidden')) {
+                const state = { activeFilter, brandFilter, currentSection, isMosaic, scrollPos: window.scrollY };
+                localStorage.setItem('automotora_state', JSON.stringify(state));
+            }
         }
 
         function loadState() {
@@ -193,14 +191,22 @@
             const icon = document.getElementById('mosaicIcon');
             grid.className = isMosaic ? "grid grid-cols-2 gap-3 p-2 transition-all duration-500" : "grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8 transition-all duration-500";
             if(icon) icon.innerText = isMosaic ? 'view_agenda' : 'grid_view';
-            saveState();
             renderAll();
         }
 
         function toggleExpand(card) {
-            card.classList.toggle('col-span-full');
-            card.classList.toggle('z-10');
-            if(card.classList.contains('col-span-full')) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Lógica de acordeón: cerrar las otras antes de abrir esta
+            const allCards = document.querySelectorAll('.vehicle-card');
+            const isOpening = !card.classList.contains('col-span-full');
+            
+            allCards.forEach(c => {
+                c.classList.remove('col-span-full', 'z-10', 'ring-4', 'ring-primary/20');
+            });
+
+            if (isOpening) {
+                card.classList.add('col-span-full', 'z-10', 'ring-4', 'ring-primary/20');
+                setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+            }
         }
 
         async function initApp() {
@@ -218,25 +224,34 @@
                 });
                 renderBrandDrawer();
                 
-                // Aplicar estado recuperado
                 if (activeFilter) {
-                    toggleFilter(activeFilter, false);
-                    if (brandFilter) renderBrandChips(activeFilter);
+                    toggleFilter(activeFilter, false); 
+                } else {
+                    renderAll();
                 }
+                
                 if (currentSection === 'admin') showSection('admin');
                 toggleMosaic(isMosaic);
 
-                if (saved && saved.scrollPos) {
-                    setTimeout(() => window.scrollTo(0, saved.scrollPos), 100);
+                if (saved && saved.scrollPos && currentSection === 'catalog') {
+                    setTimeout(() => window.scrollTo({top: saved.scrollPos, behavior: 'instant'}), 300);
                 }
             } catch(e) { console.error("Error."); }
         }
 
         function handleStockClick() {
-            brandFilter = null; 
-            if (currentSection !== 'catalog') { showSection('catalog'); } 
-            else if (activeFilter !== null) { resetBranchFilter(); } 
-            else { renderAll(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+            if (currentSection === 'admin') {
+                showSection('catalog');
+                const saved = JSON.parse(localStorage.getItem('automotora_state'));
+                if (saved && saved.scrollPos) {
+                    // Timeout un poco más largo para asegurar que el DOM del catálogo esté listo
+                    setTimeout(() => window.scrollTo({top: saved.scrollPos, behavior: 'smooth'}), 100);
+                }
+            } else {
+                brandFilter = null; 
+                if (activeFilter !== null) { resetBranchFilter(); } 
+                else { renderAll(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+            }
             saveState();
         }
 
@@ -318,7 +333,7 @@
                 const logo = `https://logo.clearbit.com/${c.marca.toLowerCase().replace(/\s/g, '')}.com`;
                 
                 container.innerHTML += `
-                    <div onclick="toggleExpand(this)" class="group bg-white rounded-[2rem] overflow-hidden border border-slate-100 flex flex-col relative transition-all duration-500 shadow-xl cursor-pointer">
+                    <div onclick="toggleExpand(this)" class="vehicle-card group bg-white rounded-[2rem] overflow-hidden border border-slate-100 flex flex-col relative transition-all duration-500 shadow-xl cursor-pointer">
                         <div class="absolute top-6 left-6 z-10 bg-white/70 backdrop-blur-md px-3 py-1 rounded-full text-[7px] font-black uppercase text-slate-500 italic border border-white/20">${c.sucursalOrigen}</div>
                         <div class="${isMosaic ? 'h-[100px]' : 'h-64'} bg-slate-50 flex items-center justify-center relative overflow-hidden transition-all duration-500">
                             <img src="${logo}" class="h-8 absolute top-8 right-8 opacity-20 grayscale transition-all group-hover:opacity-100 group-hover:grayscale-0" onerror="this.style.display='none'">
@@ -344,12 +359,12 @@
         }
 
         function showSection(id) {
+            // Guardamos antes de cambiar
+            saveState();
             currentSection = id;
             document.getElementById('section-catalog').classList.toggle('hidden', id === 'admin');
             document.getElementById('section-admin').classList.toggle('hidden', id !== 'admin');
             updateUI(); 
-            saveState();
-            window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
         function updateUI() {
@@ -366,7 +381,7 @@
         }
 
         window.onload = initApp;
-        window.onscroll = () => { if(currentSection === 'catalog') saveState(); };
+        window.onscroll = () => { saveState(); };
     </script>
 </body>
 </html>
