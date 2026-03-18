@@ -45,7 +45,13 @@
         .drawer-open { transform: translateX(0) !important; }
 
         @media (min-width: 1024px) { .main-content { margin-left: 280px; } }
-        @media (max-width: 1023px) { .section-view { padding-bottom: 100px; } }
+        
+        /* Ajuste de sección para que Admin sea Full Screen */
+        .section-view { transition: all 0.3s ease; }
+        @media (max-width: 1023px) { 
+            #section-catalog { padding-bottom: 100px; } 
+            #section-admin { padding-bottom: 0px !important; } 
+        }
 
         #mainGrid.grid-cols-mosaic {
             grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
@@ -61,17 +67,21 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
         #dynamicHeader { position: relative; overflow: hidden; background-color: #0f172a; }
-        .watermark-bg {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            min-width: 100%; min-height: 100%; object-fit: cover; opacity: 0.4; z-index: 1;
-        }
-        .header-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, rgba(15,23,42,0.75), rgba(15,23,42,0.9));
-            z-index: 2;
-        }
+        .watermark-bg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); min-width: 100%; min-height: 100%; object-fit: cover; opacity: 0.4; z-index: 1; }
+        .header-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(15,23,42,0.75), rgba(15,23,42,0.9)); z-index: 2; }
         .header-content { position: relative; z-index: 3; }
         .text-shadow-lg { text-shadow: 0 4px 12px rgba(0,0,0,0.8); }
+
+        /* BOTÓN VOLVER LATERAL (NO TAPA EL MENÚ SUPERIOR) */
+        #btnReturnToStock {
+            position: fixed; top: 50%; right: 0; transform: translateY(-50%);
+            z-index: 9999; background: #137fec; color: white;
+            padding: 20px 8px; border-radius: 20px 0 0 20px;
+            display: none; flex-direction: column; align-items: center; gap: 8px;
+            box-shadow: -5px 0 20px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-right: none;
+        }
     </style>
 </head>
 
@@ -81,20 +91,25 @@
         <span id="mosaicIcon" class="material-symbols-outlined">grid_view</span>
     </button>
 
+    <button id="btnReturnToStock" onclick="showSection('catalog')" class="active:scale-90 transition-all">
+        <span class="material-symbols-outlined text-xl">directions_car</span>
+        <span class="text-[9px] font-black uppercase italic tracking-tighter" style="writing-mode: vertical-lr; transform: rotate(180deg);">STOCK</span>
+    </button>
+
     <aside class="hidden lg:flex fixed left-0 top-0 h-screen w-[280px] bg-white border-r border-slate-100 flex-col z-50">
         <div class="p-8">
             <div class="flex flex-col items-center mb-10 fade-in">
                 <img src="../img/logo.png" alt="Logo" class="w-24 h-auto mb-4 object-contain">
-                <span class="text-xl font-bold tracking-tight text-slate-900 leading-none uppercase italic">Automotora</span>
+                <span class="text-xl font-bold tracking-tight text-slate-900 leading-none uppercase italic text-center">Automotora</span>
             </div>
             <nav class="space-y-2">
-                <button onclick="handleStockClick()" id="btn-nav-catalog" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl bg-primary text-white font-bold text-xs uppercase tracking-widest transition-all nav-btn shadow-lg">
+                <button onclick="handleStockClick()" id="btn-nav-catalog" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl bg-primary text-white font-bold text-xs uppercase tracking-widest transition-all nav-btn shadow-lg italic">
                     <span class="material-symbols-outlined">directions_car</span> Catálogo
                 </button>
-                <button onclick="toggleDrawer()" id="btn-sidebar-brands" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-slate-50 text-slate-500 font-bold text-xs uppercase tracking-widest transition-all">
+                <button onclick="toggleDrawer()" id="btn-sidebar-brands" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-slate-50 text-slate-500 font-bold text-xs uppercase tracking-widest transition-all italic">
                     <span class="material-symbols-outlined">branding_watermark</span> Marcas
                 </button>
-                <button onclick="showSection('admin')" id="btn-nav-admin" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-slate-50 text-slate-500 font-bold text-xs uppercase tracking-widest transition-all nav-btn">
+                <button onclick="showSection('admin')" id="btn-nav-admin" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-slate-50 text-slate-500 font-bold text-xs uppercase tracking-widest transition-all nav-btn italic">
                     <span class="material-symbols-outlined">admin_panel_settings</span> Admin Panel
                 </button>
             </nav>
@@ -105,18 +120,18 @@
         </div>
     </aside>
 
-    <nav id="bottomNav" class="lg:hidden fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-xl border-t border-slate-100 z-[100] h-20 flex items-center justify-around px-6">
+    <nav id="bottomNav" class="lg:hidden fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-xl border-t border-slate-100 z-[100] h-20 flex items-center justify-around px-6 transition-all duration-300">
         <button id="btn-bottom-brands" onclick="toggleDrawer()" class="flex flex-col items-center gap-1 text-slate-400">
             <span class="material-symbols-outlined text-2xl">menu</span>
-            <span class="text-[9px] font-bold uppercase">Marcas</span>
+            <span class="text-[9px] font-bold uppercase italic">Marcas</span>
         </button>
         <button onclick="handleStockClick()" class="flex flex-col items-center gap-1 text-primary font-bold">
-            <span class="material-symbols-outlined text-2xl font-bold">directions_car</span>
-            <span class="text-[9px] font-bold uppercase tracking-widest">Stock</span>
+            <span class="material-symbols-outlined text-2xl font-bold italic">directions_car</span>
+            <span class="text-[9px] font-bold uppercase tracking-widest italic">Stock</span>
         </button>
         <button id="btn-bottom-admin" onclick="showSection('admin')" class="flex flex-col items-center gap-1 text-slate-400">
-            <span class="material-symbols-outlined text-2xl">lock</span>
-            <span class="text-[9px] font-bold uppercase tracking-widest">Admin</span>
+            <span class="material-symbols-outlined text-2xl italic">lock</span>
+            <span class="text-[9px] font-bold uppercase tracking-widest italic tracking-tighter">Admin</span>
         </button>
     </nav>
 
@@ -131,20 +146,18 @@
                         <span class="text-[10px] font-black uppercase tracking-widest italic">Tu socio de confianza en el sur</span>
                     </div>
                     <h1 class="text-4xl md:text-7xl font-black tracking-tighter mb-4 leading-none uppercase italic text-white text-shadow-lg">Automotora <span class="text-primary italic">Stock</span></h1>
-                    <p class="text-white/90 max-w-2xl mx-auto text-base leading-relaxed italic px-4 text-shadow-lg">
-                        Somos una automotora de confianza en <b>Puerto Varas</b>, donde la transparencia y la seguridad se encuentran para que compres o vendas tu vehículo con total tranquilidad.
-                    </p>
+                    <p class="text-white/90 max-w-2xl mx-auto text-base leading-relaxed italic px-4 text-shadow-lg">Somos una automotora de confianza en <b>Puerto Varas</b>.</p>
                 </div>
 
                 <div id="headerBranch" class="header-content hidden fade-in">
-                    <button onclick="resetBranchFilter()" class="mb-4 text-white font-bold text-[10px] uppercase tracking-widest flex items-center gap-2 mx-auto">
+                    <button onclick="resetBranchFilter()" class="mb-4 text-white font-bold text-[10px] uppercase tracking-widest flex items-center gap-2 mx-auto italic">
                         <span class="material-symbols-outlined text-sm">arrow_back</span> Ver todas las sucursales
                     </button>
                     <h1 id="branchTitle" class="text-4xl md:text-7xl font-black tracking-tighter leading-tight uppercase text-white mb-8 italic text-shadow-lg">---</h1>
-                    </div>
+                </div>
             </header>
 
-            <div id="filterContainerArea" class="max-w-7xl mx-auto px-6 mb-12 overflow-x-auto no-scrollbar pt-8">
+            <div id="filterContainerArea" class="max-w-7xl mx-auto px-6 mb-12 overflow-x-auto no-scrollbar pt-8 text-center">
                 <div id="dynamicChips" class="flex flex-nowrap md:flex-wrap justify-start md:justify-center gap-3">
                     <div class="skeleton w-32 h-10 rounded-2xl"></div>
                     <div class="skeleton w-32 h-10 rounded-2xl"></div>
@@ -152,40 +165,15 @@
             </div>
 
             <main class="max-w-7xl mx-auto px-4 md:px-10 pb-20">
-                <div class="mb-10">
-                    <input id="searchInput" onkeyup="renderAll()" type="text" class="w-full md:w-96 px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 text-sm" placeholder="Buscar vehículo..."/>
+                <div class="mb-10 flex justify-center">
+                    <input id="searchInput" onkeyup="renderAll()" type="text" class="w-full md:w-96 px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 text-sm shadow-sm italic" placeholder="Buscar vehículo..."/>
                 </div>
                 
                 <div id="mainGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8 transition-all duration-500">
                     <div class="skeleton h-[450px] rounded-[2rem]"></div>
                     <div class="skeleton h-[450px] rounded-[2rem]"></div>
-                    <div class="skeleton h-[450px] rounded-[2rem]"></div>
                 </div>
             </main>
-
-            <footer class="bg-slate-900 text-slate-400 py-16 pb-32 lg:pb-16">
-                <div class="max-w-7xl mx-auto px-6 italic font-medium">
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12 border-b border-slate-800 pb-12 text-center md:text-left">
-                        <div>
-                            <div class="flex items-center justify-center md:justify-start gap-3 mb-6">
-                                <img src="../img/logo.png" class="h-10 w-auto brightness-0 invert">
-                                <span class="text-xl font-bold tracking-tight text-white uppercase italic">Automotora</span>
-                            </div>
-                            <p class="text-sm">Confianza y garantía en Puerto Varas.</p>
-                        </div>
-                        <div>
-                            <h4 class="text-white font-bold mb-6 uppercase text-xs tracking-widest italic text-primary">Sedes</h4>
-                            <ul class="space-y-4 text-sm italic" id="footerBranches"></ul>
-                        </div>
-                        <div>
-                            <h4 class="text-white font-bold mb-6 uppercase text-xs tracking-widest italic text-primary">Contacto</h4>
-                            <p class="text-sm font-bold text-white italic">+56 9 2007 8076</p>
-                            <p class="text-sm text-slate-500 break-all mt-2 italic">contacto@carlospninteractive.cl</p>
-                        </div>
-                    </div>
-                    <p class="text-[10px] font-bold uppercase tracking-widest text-center italic opacity-30">© 2026 CarlosPN Interactive®</p>
-                </div>
-            </footer>
         </section>
 
         <section id="section-admin" class="section-view hidden h-screen w-full bg-slate-50 overflow-hidden">
@@ -196,7 +184,7 @@
     <aside id="brandDrawer" class="fixed top-0 left-0 h-full w-[280px] bg-white z-[200] border-r border-slate-100 -translate-x-full shadow-2xl overflow-y-auto">
         <div class="p-8">
             <div class="flex items-center justify-between mb-8">
-                <span class="text-xs font-black uppercase tracking-widest text-primary">Marcas</span>
+                <span class="text-xs font-black uppercase tracking-widest text-primary italic">Marcas</span>
                 <button onclick="toggleDrawer()" class="material-symbols-outlined text-slate-400">close</button>
             </div>
             <div id="drawerBrandList" class="grid grid-cols-2 gap-4"></div>
@@ -208,12 +196,7 @@
         const KEY = "CPN_INTERACTIVE_2026_SECURE";
         const WHATSAPP_NUMBER = "56920078076";
         
-        let globalInventory = []; 
-        let globalBranches = [];
-        let activeFilter = null; 
-        let brandFilter = null;
-        let currentSection = 'catalog';
-        let isMosaic = false;
+        let globalInventory = [], globalBranches = [], activeFilter = null, brandFilter = null, currentSection = 'catalog', isMosaic = false;
 
         function toggleDrawer() { document.getElementById('brandDrawer').classList.toggle('drawer-open'); }
 
@@ -221,13 +204,8 @@
             isMosaic = (forceState !== null) ? forceState : !isMosaic;
             const grid = document.getElementById('mainGrid');
             const icon = document.getElementById('mosaicIcon');
-            if (isMosaic) {
-                grid.classList.add('grid-cols-mosaic');
-                if(icon) icon.innerText = 'view_agenda';
-            } else {
-                grid.classList.remove('grid-cols-mosaic');
-                if(icon) icon.innerText = 'grid_view';
-            }
+            if (isMosaic) { grid.classList.add('grid-cols-mosaic'); if(icon) icon.innerText = 'view_agenda'; }
+            else { grid.classList.remove('grid-cols-mosaic'); if(icon) icon.innerText = 'grid_view'; }
             localStorage.setItem('automotora_mosaic_pref', isMosaic);
         }
 
@@ -236,25 +214,19 @@
                 const resB = await fetch(`${SCRIPT_URL}?key=${KEY}&action=get_branches`);
                 globalBranches = await resB.json();
                 renderChips(globalBranches);
-                renderFooterBranches(globalBranches);
-
                 const promises = globalBranches.map(b => fetch(`${SCRIPT_URL}?action=read&key=${KEY}&branch=${b[1]}`).then(r => r.json()));
                 const results = await Promise.all(promises);
-                
                 results.forEach((data, index) => {
                     const branchName = globalBranches[index][1];
-                    const cleanData = data.filter(c => c.estado !== "Vendido").map(c => ({...c, sucursalOrigen: branchName}));
-                    globalInventory = [...globalInventory, ...cleanData];
+                    globalInventory = [...globalInventory, ...data.filter(c => c.estado !== "Vendido").map(c => ({...c, sucursalOrigen: branchName}))];
                 });
-
                 globalInventory.sort(() => Math.random() - 0.5);
                 renderBrandDrawer();
-                
                 const mosaicPref = localStorage.getItem('automotora_mosaic_pref');
                 if (mosaicPref !== null) isMosaic = (mosaicPref === 'true');
                 toggleMosaic(isMosaic);
                 renderAll();
-            } catch(e) { console.error("Error."); }
+            } catch(e) { console.error("Error al cargar."); }
         }
 
         function handleStockClick() {
@@ -290,20 +262,11 @@
         }
 
         function resetBranchFilter() {
-            activeFilter = null;
-            brandFilter = null;
+            activeFilter = null; brandFilter = null;
             document.getElementById('headerDefault').classList.remove('hidden');
             document.getElementById('headerBranch').classList.add('hidden');
             renderChips(globalBranches);
-            updateNavUI();
             renderAll();
-        }
-
-        function renderFooterBranches(branches) {
-            const container = document.getElementById('footerBranches');
-            branches.forEach(b => {
-                container.innerHTML += `<li><a href="javascript:void(0)" onclick="showSection('catalog'); toggleFilter('${b[1]}')" class="hover:text-primary transition-colors italic leading-none">${b[1]}</a></li>`;
-            });
         }
 
         function toggleFilter(name) {
@@ -312,55 +275,26 @@
             document.getElementById('headerBranch').classList.remove('hidden');
             document.getElementById('branchTitle').innerText = activeFilter;
             renderBrandChips(activeFilter);
-            updateNavUI();
             renderAll();
             window.scrollTo({top: 0, behavior: 'smooth'});
-        }
-
-        function updateNavUI() {
-            const btnBrands = document.getElementById('btn-bottom-brands');
-            const btnAdmin = document.getElementById('btn-bottom-admin');
-            if (currentSection === 'admin') {
-                btnBrands.style.display = 'none'; btnAdmin.style.display = 'none';
-            } else if (activeFilter !== null) {
-                btnBrands.style.display = 'none'; btnAdmin.style.display = 'flex';
-            } else {
-                btnBrands.style.display = 'flex'; btnAdmin.style.display = 'flex';
-            }
         }
 
         function renderBrandDrawer() {
             const container = document.getElementById('drawerBrandList');
             const marcas = [...new Set(globalInventory.map(c => c.marca.toUpperCase()))];
             container.innerHTML = '';
-            marcas.forEach(m => {
-                container.innerHTML += `<button onclick="setBrandFilter('${m}')" class="p-4 bg-slate-50 rounded-xl text-[10px] font-bold uppercase italic">${m}</button>`;
-            });
+            marcas.forEach(m => { container.innerHTML += `<button onclick="setBrandFilter('${m}')" class="p-4 bg-slate-50 rounded-xl text-[10px] font-bold uppercase italic">${m}</button>`; });
         }
 
-        function setBrandFilter(m) { 
-            brandFilter = (brandFilter === m) ? null : m; 
-            if(activeFilter) renderBrandChips(activeFilter);
-            renderAll(); 
-            if(document.getElementById('brandDrawer').classList.contains('drawer-open')) toggleDrawer(); 
-        }
+        function setBrandFilter(m) { brandFilter = (brandFilter === m) ? null : m; if(activeFilter) renderBrandChips(activeFilter); renderAll(); if(document.getElementById('brandDrawer').classList.contains('drawer-open')) toggleDrawer(); }
 
         function renderAll() {
-            const container = document.getElementById('mainGrid');
-            const term = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = globalInventory.filter(c => 
-                (!activeFilter || c.sucursalOrigen === activeFilter) && 
-                (!brandFilter || c.marca.toUpperCase() === brandFilter) && 
-                (!term || JSON.stringify(c).toLowerCase().includes(term))
-            );
+            const container = document.getElementById('mainGrid'), term = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = globalInventory.filter(c => (!activeFilter || c.sucursalOrigen === activeFilter) && (!brandFilter || c.marca.toUpperCase() === brandFilter) && (!term || JSON.stringify(c).toLowerCase().includes(term)));
             container.innerHTML = '';
-            if(filtered.length === 0 && globalInventory.length > 0) {
-                container.innerHTML = '<div class="col-span-full py-20 text-center text-slate-300 font-black uppercase italic">No hay resultados</div>';
-                return;
-            }
+            if(filtered.length === 0) { container.innerHTML = '<div class="col-span-full py-20 text-center text-slate-300 font-black uppercase italic">No hay resultados</div>'; return; }
             filtered.forEach((c) => {
-                const isRes = c.estado === "Reservado";
-                const msg = encodeURIComponent(`Consulta: ${c.marca} ${c.modelo} - ${c.sucursalOrigen}`);
+                const isRes = c.estado === "Reservado", msg = encodeURIComponent(`Consulta: ${c.marca} ${c.modelo} - ${c.sucursalOrigen}`);
                 const logo = `https://logo.clearbit.com/${c.marca.toLowerCase().replace(/\s/g, '')}.com`;
                 container.innerHTML += `
                     <div class="group bg-white rounded-[2rem] overflow-hidden border border-slate-100 flex flex-col relative transition-all duration-500 shadow-xl">
@@ -388,22 +322,28 @@
             });
         }
 
-        function showSection(id, scrollUp = true) {
+        function showSection(id) {
             currentSection = id;
             document.querySelectorAll('.section-view').forEach(s => s.classList.add('hidden'));
             document.getElementById(`section-${id}`).classList.remove('hidden');
+            
             const mosaicBtn = document.getElementById('mosaicFloatingBtn');
-            if (id === 'admin') mosaicBtn.style.display = 'none';
-            else mosaicBtn.style.display = 'flex';
-            updateNavUI();
-            if (scrollUp) window.scrollTo({top: 0, behavior: 'smooth'});
+            const bottomNav = document.getElementById('bottomNav');
+            const returnBtn = document.getElementById('btnReturnToStock');
+
+            if (id === 'admin') {
+                mosaicBtn.style.display = 'none';
+                bottomNav.style.display = 'none'; // DESAPARECE FÍSICAMENTE
+                returnBtn.style.display = 'flex'; // BOTÓN LATERAL DERECHO
+            } else {
+                mosaicBtn.style.display = 'flex';
+                bottomNav.style.display = 'flex';
+                returnBtn.style.display = 'none';
+            }
+            window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
-        function openLink(url) {
-            localStorage.setItem('automotora_session', JSON.stringify({ section: currentSection, filter: activeFilter, scroll: window.scrollY, mosaic: isMosaic }));
-            window.location.href = url;
-        }
-
+        function openLink(url) { window.location.href = url; }
         window.onload = initApp;
     </script>
 </body>
