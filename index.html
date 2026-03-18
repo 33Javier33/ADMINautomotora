@@ -57,9 +57,10 @@
         #cards.grid-cols-mosaic { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 0.75rem !important; padding: 0.75rem !important; }
         .card-expanded { grid-column: 1 / -1 !important; transform: scale(1.01); z-index: 20; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2); }
 
+        /* Estilos de texto en modo mosaico */
         #cards.grid-cols-mosaic .card-item:not(.card-expanded) .p-8 { padding: 0.75rem !important; }
-        #cards.grid-cols-mosaic .card-item:not(.card-expanded) .card-brand { font-size: 13px !important; }
-        #cards.grid-cols-mosaic .card-item:not(.card-expanded) .card-model { font-size: 11px !important; margin-top: -2px; }
+        #cards.grid-cols-mosaic .card-item:not(.card-expanded) .card-brand { font-size: 13px !important; line-height: 1 !important; }
+        #cards.grid-cols-mosaic .card-item:not(.card-expanded) .card-model { font-size: 11px !important; margin-top: 2px !important; }
         #cards.grid-cols-mosaic .card-item:not(.card-expanded) .badge-patente { font-size: 9px !important; padding: 2px 4px !important; }
         
         #cards.grid-cols-mosaic .card-item:not(.card-expanded) .tech-info-row { gap: 6px !important; display: flex !important; flex-direction: column !important; }
@@ -138,6 +139,13 @@
             <div class="flex flex-col md:flex-row gap-3"><input type="text" id="newB" placeholder="Nombre Nueva Sucursal" class="bg-slate-50 m-0"><button class="bg-primary text-white px-8 py-4 rounded-2xl font-black uppercase italic shadow-lg" onclick="crearB()">CREAR SEDE</button></div>
         </div>
         <div id="listaSuc" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+    </div>
+</div>
+
+<div id="modalStaff" class="modal-overlay">
+    <div class="modal-content max-w-md">
+        <div class="flex justify-between items-center mb-8"><h2 class="text-xl font-black text-primary uppercase italic tracking-tighter">Gestor de Equipo</h2><button onclick="document.getElementById('modalStaff').style.display='none'" class="material-symbols-outlined text-slate-400">close</button></div>
+        <div class="space-y-4"><input type="text" id="stNombre" placeholder="Nombre Completo"><input type="text" id="stR" placeholder="RUT"><input type="password" id="stP" placeholder="Clave"><select id="stRol"><option value="Vendedor">Vendedor</option><option value="Encargado">Encargado</option></select><button class="w-full bg-primary text-white py-4 rounded-2xl font-black uppercase italic tracking-widest shadow-lg" onclick="crearStaff()">GUARDAR VENDEDOR</button></div>
     </div>
 </div>
 
@@ -310,7 +318,33 @@
 
     function entrarM(n) { sucA = n; miRol = "MAESTRO"; localStorage.setItem('cpn_session', JSON.stringify({ rol: miRol, sucursal: sucA })); iniciarApp(); }
     async function crearB() { const n = document.getElementById('newB').value; if(!n) return; await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "create_branch", nombre: n, key: KEY }) }); document.getElementById('newB').value = ''; cargarSuc(); }
-    async function crearStaff() { const n = document.getElementById('stNombre').value, r = document.getElementById('stR').value, p = document.getElementById('stP').value, rol = document.getElementById('stRol').value; if(!n || !r || !p) return alert("Faltan datos"); await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "create_staff", nombre: n, newRut: r, newPass: p, branch: sucA, rol: rol, key: KEY }) }); alert("Guardado"); document.getElementById('modalStaff').style.display='none'; }
+    
+    async function crearStaff() { 
+        const n = document.getElementById('stNombre').value, r = document.getElementById('stR').value, p = document.getElementById('stP').value, rol = document.getElementById('stRol').value; 
+        if(!n || !r || !p) return alert("Faltan datos"); 
+        
+        const btn = document.querySelector("#modalStaff button");
+        const originalText = btn.innerText;
+        btn.innerText = "GUARDANDO...";
+        btn.disabled = true;
+
+        try {
+            await fetch(SCRIPT_URL, { 
+                method: "POST", 
+                body: JSON.stringify({ action: "create_staff", nombre: n, newRut: r, newPass: p, branch: sucA, rol: rol, key: KEY }) 
+            }); 
+            alert("Vendedor Guardado Correctamente"); 
+            document.getElementById('modalStaff').style.display='none'; 
+            document.getElementById('stNombre').value = '';
+            document.getElementById('stR').value = '';
+            document.getElementById('stP').value = '';
+        } catch(e) {
+            alert("Error al guardar");
+        } finally {
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }
+    }
 </script>
 </body>
 </html>
