@@ -44,6 +44,7 @@
         @media (min-width: 1024px) { .main-content { margin-left: 280px; } }
         @media (max-width: 1023px) { 
             .section-view { padding-bottom: 100px; } 
+            /* Importante: Admin no debe tener padding para que su menú se vea */
             #section-admin { padding-bottom: 0px !important; }
         }
 
@@ -73,6 +74,10 @@
             display: none; flex-direction: column; align-items: center; gap: 8px;
             box-shadow: -5px 0 20px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2);
         }
+
+        /* Estilo forzado para el contenedor de admin */
+        #section-admin { height: 100vh; width: 100%; position: relative; }
+        #adminIframe { width: 100%; height: 100%; border: none; display: block; }
     </style>
 </head>
 
@@ -184,8 +189,8 @@
             </footer>
         </section>
 
-        <section id="section-admin" class="section-view hidden h-screen w-full bg-slate-50 overflow-hidden">
-            <iframe id="adminIframe" src="https://admi-nautomotora.vercel.app/" class="w-full h-full border-none"></iframe>
+        <section id="section-admin" class="section-view hidden bg-slate-50">
+            <iframe id="adminIframe" src="https://admi-nautomotora.vercel.app/"></iframe>
         </section>
     </div>
 
@@ -335,9 +340,12 @@
             if (currentSection === 'admin') {
                 bottomNav.style.display = 'none';
                 returnBtn.style.display = 'flex';
+                // Asegurar que el body no tenga scroll cuando está en admin para que el iframe maneje el suyo
+                document.body.style.overflow = 'hidden';
             } else {
                 bottomNav.style.display = 'flex';
                 returnBtn.style.display = 'none';
+                document.body.style.overflow = 'auto';
                 if (activeFilter !== null) {
                     btnBrands.style.display = 'none';
                     bottomNav.classList.remove('justify-around');
