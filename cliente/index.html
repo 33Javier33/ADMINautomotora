@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html class="light" lang="es">
+<html class="light bg-white" lang="es">
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
@@ -14,86 +14,38 @@
             darkMode: "class",
             theme: {
                 extend: {
-                    colors: { "primary": "#137fec", "background-light": "#ffffff" },
-                    fontFamily: { "display": ["Inter"] },
-                    borderRadius: { "DEFAULT": "0.5rem", "lg": "0.5rem", "xl": "1rem", "2xl": "1.5rem", "full": "9999px" },
+                    colors: { "primary": "#137fec" },
+                    fontFamily: { "display": ["Inter", "sans-serif"] },
+                    animation: {
+                        'shimmer': 'shimmer 2s infinite linear',
+                        'fade-in': 'fadeIn 0.6s ease-out forwards',
+                    },
+                    keyframes: {
+                        shimmer: { '0%': { transform: 'translateX(-100%)' }, '100%': { transform: 'translateX(100%)' } },
+                        fadeIn: { 'from': { opacity: '0', transform: 'translateY(10px)' }, 'to': { opacity: '1', transform: 'translateY(0)' } }
+                    }
                 },
             },
         }
     </script>
-    
-    <style>
-        body { font-family: 'Inter', sans-serif; background-color: #ffffff; color: #0f172a; overflow-x: hidden; margin: 0; padding: 0; }
-        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-        
-        .skeleton { background: #f1f5f9; position: relative; overflow: hidden; }
-        .skeleton::after {
-            content: ""; position: absolute; top: 0; right: 0; bottom: 0; left: 0;
-            transform: translateX(-100%);
-            background: linear-gradient(90deg, rgba(255,255,255,0) 0, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0) 100%);
-            animation: shimmer 1.5s infinite;
-        }
-        @keyframes shimmer { 100% { transform: translateX(100%); } }
-
-        .chip-branch, .chip-brand { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); flex-shrink: 0; cursor: pointer; }
-        .chip-active { background-color: #137fec !important; color: #ffffff !important; transform: scale(1.05); }
-        
-        #brandDrawer { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        .drawer-open { transform: translateX(0) !important; }
-
-        @media (min-width: 1024px) { .main-content { margin-left: 280px; } }
-        @media (max-width: 1023px) { 
-            .section-view { padding-bottom: 100px; } 
-            #section-admin { padding-bottom: 0px !important; }
-        }
-
-        #mainGrid.grid-cols-mosaic { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 0.75rem !important; padding: 0.5rem !important; }
-        .vehicle-card.expanded { grid-column: 1 / -1 !important; z-index: 10; }
-
-        #mainGrid.grid-cols-mosaic .vehicle-card:not(.expanded) .p-10 { padding: 0.8rem !important; }
-        #mainGrid.grid-cols-mosaic .vehicle-card:not(.expanded) h3 { font-size: 13px !important; margin-bottom: 4px !important; }
-        #mainGrid.grid-cols-mosaic .vehicle-card:not(.expanded) .text-4xl { font-size: 1.1rem !important; }
-        #mainGrid.grid-cols-mosaic .vehicle-card:not(.expanded) .h-64 { height: 100px !important; }
-        #mainGrid.grid-cols-mosaic .vehicle-card:not(.expanded) .grid-cols-2 { display: flex !important; flex-direction: column !important; gap: 2px !important; }
-        #mainGrid.grid-cols-mosaic .vehicle-card:not(.expanded) .grid-cols-2 div { font-size: 8px !important; }
-
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .fade-in { animation: fadeIn 0.6s ease-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-
-        #dynamicHeader { position: relative; overflow: hidden; background-color: #0f172a; }
-        .watermark-bg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); min-width: 100%; min-height: 100%; object-fit: cover; opacity: 0.4; z-index: 1; }
-        .header-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(15,23,42,0.75), rgba(15,23,42,0.9)); z-index: 2; }
-        .header-content { position: relative; z-index: 3; }
-
-        #btnReturnToStock {
-            position: fixed; top: 50%; right: 0; transform: translateY(-50%);
-            z-index: 9999; background: #137fec; color: white;
-            padding: 20px 8px; border-radius: 20px 0 0 20px;
-            display: none; flex-direction: column; align-items: center; gap: 8px;
-            box-shadow: -5px 0 20px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2);
-        }
-
-        /* AJUSTE CLAVE: Asegurar que el admin use el 100% real de la pantalla */
-        #section-admin { height: 100dvh; width: 100%; position: fixed; top: 0; left: 0; z-index: 150; overflow: hidden; background: white; }
-        #adminIframe { width: 100%; height: 100%; border: none; }
-    </style>
 </head>
 
-<body class="font-display antialiased">
+<body class="font-display antialiased text-slate-900 m-0 p-0 overflow-x-hidden bg-white">
     
+    <div id="drawerOverlay" onclick="toggleDrawer()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[190] hidden transition-all duration-300"></div>
+
     <button id="mosaicFloatingBtn" onclick="toggleMosaic()" class="lg:hidden fixed bottom-24 left-6 z-[110] bg-white text-slate-900 w-14 h-14 rounded-full shadow-2xl flex items-center justify-center border border-slate-200 active:scale-95 transition-all">
         <span id="mosaicIcon" class="material-symbols-outlined">grid_view</span>
     </button>
 
-    <button id="btnReturnToStock" onclick="handleStockClick()" class="active:scale-90 transition-all">
+    <button id="btnReturnToStock" onclick="handleStockClick()" class="fixed top-1/2 right-0 -translate-y-1/2 z-[9999] bg-primary text-white py-5 px-2 rounded-l-2xl hidden flex-col items-center gap-2 shadow-2xl border border-white/20 active:scale-90 transition-all">
         <span class="material-symbols-outlined text-xl">directions_car</span>
-        <span class="text-[9px] font-black uppercase italic tracking-tighter" style="writing-mode: vertical-lr; transform: rotate(180deg);">STOCK</span>
+        <span class="text-[9px] font-black uppercase italic tracking-tighter [writing-mode:vertical-lr] rotate-180">STOCK</span>
     </button>
 
     <aside class="hidden lg:flex fixed left-0 top-0 h-screen w-[280px] bg-white border-r border-slate-100 flex-col z-50">
         <div class="p-8 text-center">
-            <div class="flex flex-col items-center mb-10 fade-in">
+            <div class="flex flex-col items-center mb-10 animate-fade-in">
                 <img src="../img/logo.png" alt="Logo" class="w-24 h-auto mb-4 object-contain">
                 <span class="text-xl font-bold tracking-tight text-slate-900 leading-none uppercase italic">Automotora</span>
             </div>
@@ -130,41 +82,45 @@
         </button>
     </nav>
 
-    <div class="main-content min-h-screen">
-        <section id="section-catalog" class="section-view overflow-y-auto">
-            <header id="dynamicHeader" class="relative py-20 md:py-40 px-6 text-center">
-                <img src="../img/logo.png" class="watermark-bg" alt="">
-                <div class="header-overlay"></div>
-                <div id="headerDefault" class="header-content fade-in">
-                    <div class="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-white/10 border border-white/20 mb-8 text-white">
+    <div class="lg:ml-[280px] min-h-screen flex flex-col">
+        <section id="section-catalog" class="pb-24 lg:pb-0 overflow-y-auto flex-1">
+            <header id="dynamicHeader" class="relative py-20 md:py-40 px-6 text-center bg-slate-900 overflow-hidden">
+                <img src="../img/logo.png" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 min-w-full min-h-full object-cover opacity-40 z-10">
+                <div class="absolute inset-0 bg-gradient-to-b from-slate-900/75 to-slate-900/90 z-20"></div>
+                
+                <div id="headerDefault" class="relative z-30 animate-fade-in text-white">
+                    <div class="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-white/10 border border-white/20 mb-8">
                         <span class="text-[10px] md:text-[12px] font-black uppercase tracking-[0.3em] italic">Excelencia Automotriz en Puerto Varas</span>
                     </div>
-                    <h1 class="text-5xl md:text-8xl font-black tracking-tighter mb-6 leading-none uppercase italic text-white">Automotora <span class="text-primary italic">Stock</span></h1>
+                    <h1 class="text-5xl md:text-8xl font-black tracking-tighter mb-6 leading-none uppercase italic">Automotora <span class="text-primary">Stock</span></h1>
                     <div class="max-w-3xl mx-auto space-y-4 px-4">
-                        <p class="text-white text-lg md:text-2xl font-black italic leading-tight">"No solo entregamos llaves, impulsamos tus nuevos comienzos <span class="text-red-500 inline-block animate-pulse">♥</span>"</p>
+                        <p class="text-lg md:text-2xl font-black italic">"No solo entregamos llaves, impulsamos tus nuevos comienzos <span class="text-red-500 animate-pulse inline-block">♥</span>"</p>
                         <p class="text-white/80 text-sm md:text-lg leading-relaxed italic font-medium">Entendemos que un vehículo es más que motor y carrocería; es la seguridad de tu familia, el fruto de tu esfuerzo y el compañero de tus próximas aventuras por el sur.</p>
                     </div>
                 </div>
-                <div id="headerBranch" class="header-content hidden fade-in">
-                    <button onclick="resetBranchFilter()" class="mb-4 text-white font-bold text-[10px] uppercase tracking-widest flex items-center gap-2 mx-auto italic">
-                        <span class="material-symbols-outlined text-sm">arrow_back</span> Ver todas las sucursales
-                    </button>
-                    <h1 id="branchTitle" class="text-4xl md:text-7xl font-black tracking-tighter leading-tight uppercase text-white mb-8 italic">---</h1>
+
+                <div id="headerBranch" class="relative z-30 hidden animate-fade-in text-white">
+                    <button onclick="resetBranchFilter()" class="mb-4 font-bold text-[10px] uppercase tracking-widest flex items-center gap-2 mx-auto italic"><span class="material-symbols-outlined text-sm">arrow_back</span> Ver todas las sucursales</button>
+                    <h1 id="branchTitle" class="text-4xl md:text-7xl font-black tracking-tighter leading-tight uppercase italic">---</h1>
                 </div>
             </header>
 
-            <div class="max-w-7xl mx-auto px-6 mb-12 overflow-x-auto no-scrollbar pt-8 text-center">
+            <div class="max-w-7xl mx-auto px-6 mb-12 overflow-x-auto [scrollbar-width:none] pt-8 text-center">
                 <div id="dynamicChips" class="flex flex-nowrap md:flex-wrap justify-start md:justify-center gap-3">
-                    <div class="skeleton w-32 h-10 rounded-2xl"></div>
+                    <div class="w-32 h-10 bg-slate-100 rounded-2xl relative overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer"></div>
+                    </div>
                 </div>
             </div>
 
             <main class="max-w-7xl mx-auto px-4 md:px-10 pb-20">
                 <div class="mb-10 flex justify-center">
-                    <input id="searchInput" onkeyup="renderAll()" type="text" class="w-full md:w-96 px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 text-sm shadow-sm italic" placeholder="Encuentra el auto de tus sueños..."/>
+                    <input id="searchInput" onkeyup="renderAll()" type="text" class="w-full md:w-96 px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 text-sm italic focus:ring-2 focus:ring-primary outline-none transition-all shadow-sm" placeholder="Buscar vehículo..."/>
                 </div>
                 <div id="mainGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8 transition-all duration-500">
-                    <div class="skeleton h-[450px] rounded-[2rem]"></div>
+                    <div class="h-[400px] bg-slate-50 rounded-[2rem] relative overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer"></div>
+                    </div>
                 </div>
             </main>
 
@@ -178,7 +134,6 @@
                         <h4 class="text-primary font-black uppercase italic tracking-widest">Contacto Directo</h4>
                         <a href="tel:+56920078076" class="block text-2xl font-black italic hover:text-primary transition-colors">+56 9 2007 8076</a>
                         <a href="mailto:c.javier.p.nauto@gmail.com" class="block text-sm font-bold italic text-slate-400 hover:text-white transition-colors">c.javier.p.nauto@gmail.com</a>
-                        <p class="text-xs text-slate-500 font-bold uppercase italic">Puerto Varas, Región de los Lagos</p>
                     </div>
                     <div class="flex flex-col justify-end items-start md:items-end">
                         <p class="text-[10px] font-black uppercase italic tracking-[0.5em] text-slate-500 mb-2">Desarrollado por</p>
@@ -188,12 +143,12 @@
             </footer>
         </section>
 
-        <section id="section-admin" class="section-view hidden bg-white">
-            <iframe id="adminIframe" src="https://admi-nautomotora.vercel.app/"></iframe>
+        <section id="section-admin" class="hidden fixed inset-0 z-[150] bg-white lg:left-[280px] h-[100dvh] w-full overflow-hidden">
+            <iframe id="adminIframe" src="https://admi-nautomotora.vercel.app/" class="w-full h-full border-none"></iframe>
         </section>
     </div>
 
-    <aside id="brandDrawer" class="fixed top-0 left-0 h-full w-[280px] bg-white z-[200] border-r border-slate-100 -translate-x-full shadow-2xl overflow-y-auto">
+    <aside id="brandDrawer" class="fixed top-0 left-0 h-full w-[280px] bg-white z-[200] border-r border-slate-100 -translate-x-full shadow-2xl transition-transform duration-500 overflow-y-auto">
         <div class="p-8">
             <div class="flex items-center justify-between mb-8"><span class="text-xs font-black uppercase tracking-widest text-primary italic">Marcas</span><button onclick="toggleDrawer()" class="material-symbols-outlined text-slate-400">close</button></div>
             <div id="drawerBrandList" class="grid grid-cols-2 gap-4"></div>
@@ -207,33 +162,49 @@
         
         let globalInventory = [], globalBranches = [], activeFilter = null, brandFilter = null, currentSection = 'catalog', isMosaic = false;
 
-        function toggleDrawer() { document.getElementById('brandDrawer').classList.toggle('drawer-open'); }
+        function saveState() {
+            const state = { activeFilter, brandFilter, currentSection, isMosaic, scrollPos: window.scrollY };
+            localStorage.setItem('automotora_state', JSON.stringify(state));
+        }
+
+        function loadState() {
+            const saved = localStorage.getItem('automotora_state');
+            if (saved) {
+                const s = JSON.parse(saved);
+                isMosaic = s.isMosaic;
+                currentSection = s.currentSection;
+                activeFilter = s.activeFilter;
+                brandFilter = s.brandFilter;
+                return s;
+            }
+            return null;
+        }
+
+        function toggleDrawer() { 
+            const dr = document.getElementById('brandDrawer');
+            const ov = document.getElementById('drawerOverlay');
+            dr.classList.toggle('-translate-x-full');
+            ov.classList.toggle('hidden');
+        }
 
         function toggleMosaic(forceState = null) {
             isMosaic = (forceState !== null) ? forceState : !isMosaic;
             const grid = document.getElementById('mainGrid');
             const icon = document.getElementById('mosaicIcon');
-            if (isMosaic) grid.classList.add('grid-cols-mosaic');
-            else grid.classList.remove('grid-cols-mosaic');
-            localStorage.setItem('automotora_mosaic_pref', isMosaic);
+            grid.className = isMosaic ? "grid grid-cols-2 gap-3 p-2 transition-all duration-500" : "grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8 transition-all duration-500";
             if(icon) icon.innerText = isMosaic ? 'view_agenda' : 'grid_view';
+            saveState();
+            renderAll();
         }
 
         function toggleExpand(card) {
-            card.classList.toggle('expanded');
-            if(card.classList.contains('expanded')) {
-                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-        }
-
-        function openExternalLink(url) {
-            localStorage.setItem('scroll_pos', window.scrollY);
-            if (activeFilter) localStorage.setItem('active_branch', activeFilter);
-            else localStorage.removeItem('active_branch');
-            window.location.href = url;
+            card.classList.toggle('col-span-full');
+            card.classList.toggle('z-10');
+            if(card.classList.contains('col-span-full')) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
         async function initApp() {
+            const saved = loadState();
             try {
                 const resB = await fetch(`${SCRIPT_URL}?key=${KEY}&action=get_branches`);
                 globalBranches = await resB.json();
@@ -246,46 +217,33 @@
                     globalInventory = [...globalInventory, ...data.filter(c => c.estado !== "Vendido").map(c => ({...c, sucursalOrigen: branchName}))];
                 });
                 renderBrandDrawer();
-                const mosaicPref = localStorage.getItem('automotora_mosaic_pref');
-                if (mosaicPref !== null) isMosaic = (mosaicPref === 'true');
-                toggleMosaic(isMosaic);
-                const savedBranch = localStorage.getItem('active_branch');
-                if (savedBranch) {
-                    activeFilter = savedBranch;
-                    document.getElementById('headerDefault').classList.add('hidden');
-                    document.getElementById('headerBranch').classList.remove('hidden');
-                    document.getElementById('branchTitle').innerText = activeFilter;
-                    renderBrandChips(activeFilter);
-                    updateUI();
+                
+                // Aplicar estado recuperado
+                if (activeFilter) {
+                    toggleFilter(activeFilter, false);
+                    if (brandFilter) renderBrandChips(activeFilter);
                 }
-                renderAll();
-                const pos = localStorage.getItem('scroll_pos');
-                if (pos) {
-                    setTimeout(() => { window.scrollTo(0, parseInt(pos)); localStorage.removeItem('scroll_pos'); }, 400);
+                if (currentSection === 'admin') showSection('admin');
+                toggleMosaic(isMosaic);
+
+                if (saved && saved.scrollPos) {
+                    setTimeout(() => window.scrollTo(0, saved.scrollPos), 100);
                 }
             } catch(e) { console.error("Error."); }
         }
 
         function handleStockClick() {
-            localStorage.removeItem('scroll_pos');
-            localStorage.removeItem('active_branch');
             brandFilter = null; 
-            if (currentSection !== 'catalog') {
-                showSection('catalog');
-            } else if (activeFilter !== null) {
-                resetBranchFilter();
-            } else {
-                renderAll();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
+            if (currentSection !== 'catalog') { showSection('catalog'); } 
+            else if (activeFilter !== null) { resetBranchFilter(); } 
+            else { renderAll(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+            saveState();
         }
 
         function renderFooterBranches(branches) {
             const container = document.getElementById('footerBranches');
             container.innerHTML = '';
-            branches.forEach(b => {
-                container.innerHTML += `<p class="hover:text-primary transition-colors cursor-pointer" onclick="toggleFilter('${b[1]}')">${b[1]}</p>`;
-            });
+            branches.forEach(b => { container.innerHTML += `<p class="hover:text-primary transition-colors cursor-pointer" onclick="toggleFilter('${b[1]}')">${b[1]}</p>`; });
         }
 
         function renderChips(branches) {
@@ -293,7 +251,7 @@
             container.innerHTML = '';
             branches.forEach(b => {
                 const btn = document.createElement('button');
-                btn.className = "chip-branch px-8 py-3 rounded-2xl bg-white border border-slate-100 text-[10px] font-bold uppercase tracking-widest text-slate-400 italic";
+                btn.className = "px-8 py-3 rounded-2xl bg-white border border-slate-100 text-[10px] font-bold uppercase tracking-widest text-slate-400 italic shrink-0 transition-all";
                 btn.innerText = b[1];
                 btn.onclick = () => toggleFilter(b[1]);
                 container.appendChild(btn);
@@ -306,54 +264,35 @@
             const marcas = [...new Set(globalInventory.filter(c => c.sucursalOrigen === sucursal).map(c => c.marca.toUpperCase()))];
             marcas.forEach(m => {
                 const btn = document.createElement('button');
-                btn.className = "chip-brand px-8 py-3 rounded-2xl bg-white border border-slate-100 text-[10px] font-bold uppercase italic tracking-widest text-slate-400";
-                if(brandFilter === m) btn.classList.add('chip-active');
+                btn.className = `px-8 py-3 rounded-2xl border text-[10px] font-bold uppercase italic tracking-widest shrink-0 transition-all ${brandFilter === m ? 'bg-primary text-white' : 'bg-white text-slate-400 border-slate-100'}`;
                 btn.innerText = m;
-                btn.onclick = () => { brandFilter = (brandFilter === m) ? null : m; renderBrandChips(sucursal); renderAll(); };
+                btn.onclick = () => { brandFilter = (brandFilter === m) ? null : m; saveState(); renderBrandChips(sucursal); renderAll(); };
                 container.appendChild(btn);
             });
         }
 
         function resetBranchFilter() {
             activeFilter = null; brandFilter = null;
-            localStorage.removeItem('active_branch');
             document.getElementById('headerDefault').classList.remove('hidden');
             document.getElementById('headerBranch').classList.add('hidden');
-            renderChips(globalBranches); updateUI(); renderAll();
+            renderChips(globalBranches); updateBottomNav(); renderAll();
+            saveState();
         }
 
-        function toggleFilter(name) {
+        function toggleFilter(name, scroll = true) {
             activeFilter = name;
-            localStorage.setItem('active_branch', name);
             document.getElementById('headerDefault').classList.add('hidden');
             document.getElementById('headerBranch').classList.remove('hidden');
             document.getElementById('branchTitle').innerText = activeFilter;
-            renderBrandChips(activeFilter); updateUI(); renderAll();
-            window.scrollTo({top: 0, behavior: 'smooth'});
+            renderBrandChips(activeFilter); updateBottomNav(); renderAll();
+            if(scroll) window.scrollTo({top: 0, behavior: 'smooth'});
+            saveState();
         }
 
-        function updateUI() {
-            const bottomNav = document.getElementById('bottomNav');
-            const returnBtn = document.getElementById('btnReturnToStock');
+        function updateBottomNav() {
             const btnBrands = document.getElementById('btn-bottom-brands');
-            if (currentSection === 'admin') {
-                bottomNav.style.display = 'none';
-                returnBtn.style.display = 'flex';
-                document.body.style.overflow = 'hidden';
-            } else {
-                bottomNav.style.display = 'flex';
-                returnBtn.style.display = 'none';
-                document.body.style.overflow = 'auto';
-                if (activeFilter !== null) {
-                    btnBrands.style.display = 'none';
-                    bottomNav.classList.remove('justify-around');
-                    bottomNav.classList.add('justify-center', 'gap-24'); 
-                } else {
-                    btnBrands.style.display = 'flex';
-                    bottomNav.classList.remove('justify-center', 'gap-24');
-                    bottomNav.classList.add('justify-around');
-                }
-            }
+            if (activeFilter || currentSection === 'admin') btnBrands.classList.add('hidden');
+            else btnBrands.classList.remove('hidden');
         }
 
         function renderBrandDrawer() {
@@ -365,8 +304,9 @@
 
         function setBrandFilter(m) { 
             brandFilter = (brandFilter === m) ? null : m; 
+            saveState();
             renderAll(); 
-            if(document.getElementById('brandDrawer').classList.contains('drawer-open')) toggleDrawer(); 
+            if(!document.getElementById('brandDrawer').classList.contains('-translate-x-full')) toggleDrawer(); 
         }
 
         function renderAll() {
@@ -376,26 +316,27 @@
             filtered.forEach((c) => {
                 const isRes = c.estado === "Reservado", msg = encodeURIComponent(`Consulta: ${c.marca} ${c.modelo} - ${c.sucursalOrigen}`);
                 const logo = `https://logo.clearbit.com/${c.marca.toLowerCase().replace(/\s/g, '')}.com`;
+                
                 container.innerHTML += `
-                    <div onclick="toggleExpand(this)" class="vehicle-card group bg-white rounded-[2rem] overflow-hidden border border-slate-100 flex flex-col relative transition-all duration-500 shadow-xl cursor-pointer">
+                    <div onclick="toggleExpand(this)" class="group bg-white rounded-[2rem] overflow-hidden border border-slate-100 flex flex-col relative transition-all duration-500 shadow-xl cursor-pointer">
                         <div class="absolute top-6 left-6 z-10 bg-white/70 backdrop-blur-md px-3 py-1 rounded-full text-[7px] font-black uppercase text-slate-500 italic border border-white/20">${c.sucursalOrigen}</div>
-                        <div class="h-64 bg-slate-50 flex items-center justify-center relative">
-                            <img src="${logo}" class="h-8 absolute top-8 right-8 opacity-20 grayscale transition-all duration-700 group-hover:opacity-100 group-hover:grayscale-0" onerror="this.style.display='none'">
-                            <span class="material-symbols-outlined text-8xl text-slate-200 transition-transform duration-1000 group-hover:scale-110">directions_car</span>
-                            ${isRes ? '<div class="absolute inset-0 bg-primary/10 flex items-center justify-center backdrop-blur-sm z-20"><span class="bg-primary text-white px-8 py-2 rounded-full text-[10px] uppercase">Reservado</span></div>' : ''}
+                        <div class="${isMosaic ? 'h-[100px]' : 'h-64'} bg-slate-50 flex items-center justify-center relative overflow-hidden transition-all duration-500">
+                            <img src="${logo}" class="h-8 absolute top-8 right-8 opacity-20 grayscale transition-all group-hover:opacity-100 group-hover:grayscale-0" onerror="this.style.display='none'">
+                            <span class="material-symbols-outlined ${isMosaic ? 'text-4xl' : 'text-8xl'} text-slate-200">directions_car</span>
+                            ${isRes ? '<div class="absolute inset-0 bg-primary/10 flex items-center justify-center backdrop-blur-sm z-20"><span class="bg-primary text-white px-8 py-2 rounded-full text-[10px] uppercase font-bold">Reservado</span></div>' : ''}
                         </div>
-                        <div class="p-10 flex flex-col">
-                            <h3 class="text-2xl font-black uppercase italic text-slate-900 mb-2 leading-none group-hover:text-primary transition-colors italic">${c.marca} ${c.modelo}</h3>
-                            <div class="grid grid-cols-2 gap-y-2 opacity-30 mb-8 text-[9px] font-bold italic uppercase tracking-widest leading-none">
+                        <div class="${isMosaic ? 'p-4' : 'p-10'} flex flex-col">
+                            <h3 class="${isMosaic ? 'text-[13px] mb-1' : 'text-2xl mb-2'} font-black uppercase italic text-slate-900 leading-none italic">${c.marca} ${c.modelo}</h3>
+                            <div class="${isMosaic ? 'grid grid-cols-1 gap-y-[2px]' : 'grid grid-cols-2 gap-y-2'} opacity-30 mb-8 text-[9px] font-bold italic uppercase tracking-widest leading-none">
                                 <div class="flex items-center gap-2"><span class="material-symbols-outlined text-xs">calendar_today</span> ${c.anio}</div>
                                 <div class="flex items-center gap-2"><span class="material-symbols-outlined text-xs">speed</span> ${Number(c.km).toLocaleString('de-DE')} KM</div>
                                 <div class="flex items-center gap-2"><span class="material-symbols-outlined text-xs font-bold">bolt</span> ${c.combustible || 'S/I'}</div>
                                 <div class="flex items-center gap-2"><span class="material-symbols-outlined text-xs">palette</span> ${c.color || 'S/I'}</div>
                             </div>
-                            <p class="text-4xl font-black text-primary mb-8 italic leading-none">$${Number(c.pVenta).toLocaleString('de-DE')}</p>
+                            <p class="${isMosaic ? 'text-[1.1rem] mb-4' : 'text-4xl mb-8'} font-black text-primary italic leading-none">$${Number(c.pVenta).toLocaleString('de-DE')}</p>
                             <div class="flex gap-3" onclick="event.stopPropagation()">
-                                <button onclick="openExternalLink('https://wa.me/${WHATSAPP_NUMBER}?text=${msg}')" class="flex-1 bg-slate-50 hover:bg-primary hover:text-white py-6 rounded-[2rem] font-bold text-[10px] uppercase transition-all italic shadow-sm">Consultar</button>
-                                ${c.instagram ? `<button onclick="openExternalLink('${c.instagram}')" class="w-16 h-16 flex items-center justify-center bg-slate-50 rounded-[1.8rem] text-slate-400 hover:bg-slate-100 transition-all"><span class="material-symbols-outlined text-xl">photo_camera</span></button>` : ''}
+                                <button onclick="window.open('https://wa.me/${WHATSAPP_NUMBER}?text=${msg}')" class="flex-1 bg-slate-50 hover:bg-primary hover:text-white ${isMosaic ? 'py-3' : 'py-6'} rounded-[2rem] font-bold text-[10px] uppercase transition-all italic shadow-sm">Consultar</button>
+                                ${c.instagram ? `<a href="${c.instagram}" onclick="saveState()" class="${isMosaic ? 'w-10 h-10' : 'w-16 h-16'} flex items-center justify-center bg-slate-50 rounded-[1.8rem] text-slate-400 hover:bg-slate-100 transition-all"><span class="material-symbols-outlined ${isMosaic ? 'text-lg' : 'text-xl'}">photo_camera</span></a>` : ''}
                             </div>
                         </div>
                     </div>`;
@@ -404,13 +345,28 @@
 
         function showSection(id) {
             currentSection = id;
-            document.querySelectorAll('.section-view').forEach(s => s.classList.add('hidden'));
-            document.getElementById(`section-${id}`).classList.remove('hidden');
-            document.getElementById('mosaicFloatingBtn').style.display = id === 'admin' ? 'none' : 'flex';
-            updateUI(); window.scrollTo({top: 0, behavior: 'smooth'});
+            document.getElementById('section-catalog').classList.toggle('hidden', id === 'admin');
+            document.getElementById('section-admin').classList.toggle('hidden', id !== 'admin');
+            updateUI(); 
+            saveState();
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        function updateUI() {
+            const btn = document.getElementById('btnReturnToStock');
+            const nav = document.getElementById('bottomNav');
+            if (currentSection === 'admin') {
+                btn.classList.remove('hidden'); btn.classList.add('flex');
+                nav.classList.add('hidden');
+            } else {
+                btn.classList.add('hidden');
+                nav.classList.remove('hidden'); nav.classList.add('flex');
+                updateBottomNav();
+            }
         }
 
         window.onload = initApp;
+        window.onscroll = () => { if(currentSection === 'catalog') saveState(); };
     </script>
 </body>
 </html>
